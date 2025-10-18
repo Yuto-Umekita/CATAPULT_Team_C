@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Item;
+use Illuminate\Support\Str;
 
 class ItemController extends Controller
 {
@@ -14,23 +15,29 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        // ✅ 検索条件を適用
-        $query = Item::with(['tags', 'user']);
+        // ✅ 基本クエリ
+        $query = Item::with([
+            'user',
+            'tags',
+            'memos' => function ($q) {
+                $q->latest()->with('user');
+            }
+        ]);
 
-        // 商品名検索
+        // 🔍 商品名検索
         if ($request->filled('keyword')) {
             $query->where('item', 'like', '%' . $request->keyword . '%');
         }
 
-        // 在庫数フィルタ（範囲）
+        // 📦 在庫数フィルタ
         if ($request->filled('stock_min')) {
-            $query->where('quantity', '>=', (int)$request->stock_min);
+            $query->where('quantity', '>=', (int) $request->stock_min);
         }
         if ($request->filled('stock_max')) {
-            $query->where('quantity', '<=', (int)$request->stock_max);
+            $query->where('quantity', '<=', (int) $request->stock_max);
         }
 
-        // 更新日フィルタ
+        // 🗓 更新日フィルタ
         if ($request->filled('updated_from')) {
             $query->whereDate('updated_at', '>=', $request->updated_from);
         }
@@ -38,7 +45,7 @@ class ItemController extends Controller
             $query->whereDate('updated_at', '<=', $request->updated_to);
         }
 
-        // 賞味期限フィルタ
+        // ⏰ 賞味期限フィルタ
         if ($request->filled('expiration_from')) {
             $query->whereDate('expiration_date', '>=', $request->expiration_from);
         }
@@ -46,28 +53,25 @@ class ItemController extends Controller
             $query->whereDate('expiration_date', '<=', $request->expiration_to);
         }
 
-                $items = $query->with([
-                    'user',
-                    'tags',
-                    'memos' => function ($query) {
-                        $query->latest()->with('user');
-                    }
-                ])->latest('updated_at')->get();
+        // ✅ 並び順：
+        // ① ピン付き優先（pinned=true が上）
+        // ② 賞味期限が近い順（nullは一番下）
+        // ③ 更新日が新しい順
+        $query->orderByDesc('pinned')
+              ->orderByRaw('CASE WHEN expiration_date IS NULL THEN 1 ELSE 0 END') // nullを後ろへ
+              ->orderBy('expiration_date', 'asc')
+              ->orderBy('updated_at', 'desc');
 
-        // 並び順（更新日が新しい順）
-        $query->orderBy('updated_at', 'desc');
-
-        // ✅ JSONリクエスト（Alpine.js用）
+        // ✅ JSONレスポンス（Alpine.js用）
         if ($request->boolean('json')) {
             $items = $query->get()->map(function ($item) {
-                $item->fade_key = uniqid('fade_'); // アニメーション用の一意キー
+                $item->fade_key = uniqid('fade_'); // アニメーション用キー
                 return $item;
             });
-
             return response()->json($items);
         }
 
-        // ✅ 通常HTML表示（Blade）
+        // ✅ 通常HTML表示（Blade用）
         $items = $query->paginate(12);
         $totalQuantity = $items->sum('quantity');
 
@@ -84,6 +88,7 @@ class ItemController extends Controller
 
     /**
      * 在庫登録処理
+     * - item_id を UUID で自動生成
      */
     public function store(Request $request)
     {
@@ -96,6 +101,7 @@ class ItemController extends Controller
         ]);
 
         $item = new Item();
+        $item->item_id = (string) Str::uuid(); // ✅ UUID 自動生成
         $item->item = $validated['item'];
         $item->quantity = $validated['quantity'];
 
@@ -142,6 +148,9 @@ class ItemController extends Controller
         return view('items.edit', compact('item', 'expiration'));
     }
 
+    /**
+     * 在庫削除
+     */
     public function destroy($id)
     {
         $item = Item::findOrFail($id);
@@ -150,4 +159,14 @@ class ItemController extends Controller
         return redirect()->route('items.index')->with('success', '在庫を削除しました。');
     }
 
+    /**
+     * ピン切り替え（Ajax）
+     */
+    public function togglePin(Item $item)
+    {
+        $item->pinned = !$item->pinned;
+        $item->save();
+
+        return response()->json(['pinned' => $item->pinned]);
+    }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\{
     ModeController,
     MemoController,
     ItemController,
+    IngredientController,
     RecipeController,
     RecipeBookmarkController,
     PurchaseListController,
@@ -52,13 +53,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
 
     // --------------------------------------------------------------
-    // 🧭 メニュー画面（全ページ統合UI）
+    // 🧭 メニュー画面
     // --------------------------------------------------------------
-    // resources/views/menu/index.blade.php を表示
-    Route::get('/menu', function () {
-        return view('menu.index'); // ファイルが menu/index.blade.php の場合
-        // return view('menu'); // ファイルが menu.blade.php の場合はこちら
-    })->name('menu.index');
+    Route::get('/menu', fn() => view('menu.index'))->name('menu.index');
 
     // --------------------------------------------------------------
     // 🏠 ダッシュボード（家庭 / 企業）
@@ -90,6 +87,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('items.memos', MemoController::class);
 
     // --------------------------------------------------------------
+    // 🥦 食材（Ingredient）
+    // --------------------------------------------------------------
+    Route::get('/ingredients', [IngredientController::class, 'index'])->name('ingredients.index');
+    Route::post('/ingredients', [IngredientController::class, 'store'])->name('ingredients.store');
+    Route::put('/ingredients/{ingredient}', [IngredientController::class, 'update'])->name('ingredients.update');
+    Route::delete('/ingredients/{ingredient}', [IngredientController::class, 'destroy'])->name('ingredients.destroy');
+
+    // --------------------------------------------------------------
     // 🏷 タグ関連
     // --------------------------------------------------------------
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
@@ -102,7 +107,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/items/{item}/tags/toggle', [ItemTagController::class, 'toggle'])->name('items.tags.toggle');
 
     // --------------------------------------------------------------
-    // 📊 在庫CSVインポート・エクスポート（InventoryCsvController）
+    // 📊 在庫CSVインポート・エクスポート
     // --------------------------------------------------------------
     Route::get('/items/csv', [InventoryCsvController::class, 'index'])->name('items.csv.index');
     Route::post('/items/csv/export', [InventoryCsvController::class, 'export'])->name('items.csv.export');
@@ -133,6 +138,11 @@ Route::middleware('auth')->group(function () {
     // 旧URL互換
     Route::get('/purchase-lists/audit-logs', fn() => redirect()->route('audit-logs.index'))
         ->name('legacy.audit-logs');
+
+    // --------------------------------------------------------------
+    // 📌 ピン機能（Ajax対応）
+    // --------------------------------------------------------------
+    Route::post('/items/{item}/pin', [ItemController::class, 'togglePin'])->name('items.pin');
 });
 
 // ====================================================================

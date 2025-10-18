@@ -35,6 +35,23 @@ class User extends Authenticatable
         ];
     }
 
+    // app/Models/User.php
+    public function pinnedIngredients()
+    {
+        return $this->belongsToMany(Ingredient::class, 'user_ingredient_pins')
+                    ->withPivot('pinned_order')
+                    ->withTimestamps()
+                    ->orderBy('user_ingredient_pins.pinned_order');
+    }
+
+    // app/Models/Ingredient.php
+    public function pinUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_ingredient_pins')
+                    ->withPivot('pinned_order')
+                    ->withTimestamps();
+    }
+
     public function items()
     {
         return $this->hasMany(Item::class);
@@ -49,4 +66,6 @@ class User extends Authenticatable
     {
         return $this->hasOne(Profile::class);
     }
+
+
 }
