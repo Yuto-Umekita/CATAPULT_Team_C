@@ -13,7 +13,8 @@ use App\Http\Controllers\{
     DashboardController,
     AdminController,
     TagController,
-    ItemTagController
+    ItemTagController,
+    InventoryCsvController
 };
 
 /*
@@ -51,10 +52,12 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
 
     // --------------------------------------------------------------
-    // 🧭 新メニュー画面（全ページ統合UI）
+    // 🧭 メニュー画面（全ページ統合UI）
     // --------------------------------------------------------------
+    // resources/views/menu/index.blade.php を表示
     Route::get('/menu', function () {
-        return view('menu.index');
+        return view('menu.index'); // ファイルが menu/index.blade.php の場合
+        // return view('menu'); // ファイルが menu.blade.php の場合はこちら
     })->name('menu.index');
 
     // --------------------------------------------------------------
@@ -97,6 +100,14 @@ Route::middleware('auth')->group(function () {
     // アイテムごとのタグ操作
     Route::get('/items/{item}/tags', [ItemTagController::class, 'index'])->name('items.tags.index');
     Route::post('/items/{item}/tags/toggle', [ItemTagController::class, 'toggle'])->name('items.tags.toggle');
+
+    // --------------------------------------------------------------
+    // 📊 在庫CSVインポート・エクスポート（InventoryCsvController）
+    // --------------------------------------------------------------
+    Route::get('/items/csv', [InventoryCsvController::class, 'index'])->name('items.csv.index');
+    Route::post('/items/csv/export', [InventoryCsvController::class, 'export'])->name('items.csv.export');
+    Route::post('/items/csv/import', [InventoryCsvController::class, 'import'])->name('items.csv.import');
+    Route::get('/items/csv/template', [InventoryCsvController::class, 'template'])->name('items.csv.template');
 
     // --------------------------------------------------------------
     // 👤 プロフィール

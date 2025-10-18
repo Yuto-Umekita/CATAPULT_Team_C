@@ -11,7 +11,6 @@
        x-data="tagFilter()"
        x-init="init()">
 
-    <!-- 🔍 検索フォーム（折りたたみ＋スライドアニメ付き） -->
     <div class="mb-8">
       <button 
         @click="searchOpen = !searchOpen"
@@ -27,7 +26,6 @@
         </svg>
       </button>
 
-      <!-- 検索フォーム本体 -->
       <form 
         x-show="searchOpen"
         x-transition:enter="transition ease-out duration-400"
@@ -115,13 +113,13 @@
           </div>
 
             <a href="{{ route('recipes.index') }}" 
-              class="relative px-6 py-2 text-white text-sm font-semibold rounded-xl 
-                    bg-gradient-to-r from-[#FFB347] to-[#FF9A3C]
-                      hover:from-[#4973B5] hover:to-[#335C9E]
-                      backdrop-blur-md border border-white/30 shadow-lg
-                      ring-2 ring-[#ffffff40] hover:ring-[#4973B5]/40
-                      hover:shadow-[0_6px_18px_rgba(73,115,181,0.4)]
-                        transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.04]">
+               class="relative px-6 py-2 text-white text-sm font-semibold rounded-xl 
+                      bg-gradient-to-r from-[#FFB347] to-[#FF9A3C]
+                        hover:from-[#4973B5] hover:to-[#335C9E]
+                        backdrop-blur-md border border-white/30 shadow-lg
+                        ring-2 ring-[#ffffff40] hover:ring-[#4973B5]/40
+                        hover:shadow-[0_6px_18px_rgba(73,115,181,0.4)]
+                          transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-[1.04]">
                 在庫で作れる料理を表示
             </a>
 
@@ -130,7 +128,6 @@
       </form>
     </div>
 
-    <!-- 🏷 タグ絞り込み -->
     <div class="mb-8 bg-white shadow-md rounded-2xl p-4">
       <div class="flex items-center flex-wrap gap-2 mb-3">
         <template x-for="tag in tags" :key="tag.id">
@@ -153,7 +150,6 @@
       <p class="text-sm text-gray-500">タグをクリックして在庫を絞り込みできます（複数選択可）</p>
     </div>
 
-    <!-- 📦 在庫一覧 -->
     <div class="bg-gradient-to-br from-indigo-100 to-blue-100 shadow-inner sm:rounded-2xl p-6">
       <template x-if="filteredItems.length === 0">
         <p class="text-center text-gray-600">該当する在庫がありません。</p>
@@ -165,38 +161,50 @@
             x-transition:enter="transition ease-out duration-500"
             x-transition:enter-start="opacity-0 scale-95"
             x-transition:enter-end="opacity-100 scale-100"
-            class="p-6 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300">
+            class="p-6 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex flex-col">
 
-            <p class="text-xl font-semibold mb-2 text-gray-800" x-text="item.item"></p>
+            <div class="flex-grow">
+              <p class="text-xl font-semibold mb-2 text-gray-800" x-text="item.item"></p>
 
-            <!-- タグ表示 -->
-            <div class="flex flex-wrap gap-1 mb-2">
-              <template x-for="t in item.tags" :key="t.id">
-                <span class="px-2 py-1 text-xs bg-gray-100 border rounded-full cursor-pointer hover:bg-gray-200"
-                      x-text="t.name"
-                      @contextmenu.prevent="openTagContextMenu($event, t, item.id)">
-                </span>
-              </template>
-              <button class="px-2 py-1 text-xs bg-indigo-500 text-white rounded-full hover:bg-indigo-600"
-                      @click="openItemTagModal(item.id)">
-                ＋
-              </button>
-            </div>
+              <div class="flex flex-wrap gap-1 mb-2">
+                <template x-for="t in item.tags" :key="t.id">
+                  <span class="px-2 py-1 text-xs bg-gray-100 border rounded-full cursor-pointer hover:bg-gray-200"
+                        x-text="t.name"
+                        @contextmenu.prevent="openTagContextMenu($event, t, item.id)">
+                  </span>
+                </template>
+                <button class="px-2 py-1 text-xs bg-indigo-500 text-white rounded-full hover:bg-indigo-600"
+                        @click="openItemTagModal(item.id)">
+                  ＋
+                </button>
+              </div>
 
-            <p class="text-gray-800 text-sm mt-2">
-              賞味期限：
-              <template x-if="item.expiration_date">
-                <span x-text="formatExpiration(item.expiration_date)"
-                      :class="isExpired(item.expiration_date) ? 'text-[#EE2E48] font-bold' : ''"></span>
-              </template>
-              <template x-if="!item.expiration_date"><span>なし</span></template>
-            </p>
+              <p class="text-gray-800 text-sm mt-2">
+                賞味期限：
+                <template x-if="item.expiration_date">
+                  <span x-text="formatExpiration(item.expiration_date)"
+                        :class="isExpired(item.expiration_date) ? 'text-[#EE2E48] font-bold' : ''"></span>
+                </template>
+                <template x-if="!item.expiration_date"><span>なし</span></template>
+              </p>
 
-            <p class="text-gray-800 text-sm">個数：<span x-text="item.quantity"></span></p>
-            <p class="text-gray-600 text-xs mb-2">登録者：<span x-text="item.user.name"></span></p>
+              <p class="text-gray-800 text-sm">個数：<span x-text="item.quantity"></span></p>
+              <p class="text-gray-600 text-xs mb-2">登録者：<span x-text="item.user.name"></span></p>
+
+              <div class="mt-4 border-t pt-3" x-show="item.memos.length > 0">
+                <p class="text-xs text-gray-500 font-semibold mb-1 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                  最新のコメント:
+                </p>
+                <div class="text-sm text-gray-700 bg-gray-50 p-2 rounded-lg">
+                  <p x-text="item.memos[0].memo.substring(0, 50) + (item.memos[0].memo.length > 50 ? '...' : '')" class="break-words"></p>
+                  <p class="text-xs text-gray-400 text-right mt-1" x-text="`- ${item.memos[0].user.name}`"></p>
+                </div>
+              </div>
+              </div>
 
             <a :href="`/items/${item.id}`" 
-               class="block text-right text-[#4973B5] hover:text-[#2C5BA5] font-medium mt-2">
+               class="block text-right text-[#4973B5] hover:text-[#2C5BA5] font-medium mt-4 self-end">
               詳細 →
             </a>
           </div>

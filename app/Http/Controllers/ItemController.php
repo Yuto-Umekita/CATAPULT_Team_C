@@ -46,6 +46,14 @@ class ItemController extends Controller
             $query->whereDate('expiration_date', '<=', $request->expiration_to);
         }
 
+                $items = $query->with([
+                    'user',
+                    'tags',
+                    'memos' => function ($query) {
+                        $query->latest()->with('user');
+                    }
+                ])->latest('updated_at')->get();
+
         // 並び順（更新日が新しい順）
         $query->orderBy('updated_at', 'desc');
 
