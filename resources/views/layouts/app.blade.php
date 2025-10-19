@@ -98,10 +98,15 @@
             {{ $slot }}
         </main>
 
-        {{-- 📌 フッター --}}
+                {{-- 📌 フッター --}}
         <footer class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
             © {{ date('Y') }} IeLog.
         </footer>
     </div>
+
+    {{-- ✅ 各ページ固有スクリプト（Alpine.jsなどを@push('scripts')で追加した場合） --}}
+    @stack('scripts')
+
 </body>
 </html>
+

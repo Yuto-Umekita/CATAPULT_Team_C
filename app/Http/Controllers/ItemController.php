@@ -62,21 +62,44 @@ class ItemController extends Controller
               ->orderBy('expiration_date', 'asc')
               ->orderBy('updated_at', 'desc');
 
-        // ✅ JSONレスポンス（Alpine.js用）
-        if ($request->boolean('json')) {
-            $items = $query->get()->map(function ($item) {
-                $item->fade_key = uniqid('fade_'); // アニメーション用キー
-                return $item;
-            });
-            return response()->json($items);
-        }
+if ($request->expectsJson()) {
+    $items = $query->get()->map(function ($item) {
+        // 🔹 必要なリレーションを JSON 用に整形
+        return [
+            'id' => $item->id,
+            'item' => $item->item,
+            'quantity' => $item->quantity,
+            'expiration_date' => $item->expiration_date,
+            'pinned' => (bool) $item->pinned,
+            'user' => [
+                'id' => $item->user->id ?? null,
+                'name' => $item->user->name ?? '不明',
+            ],
+            'tags' => $item->tags->map(fn($t) => [
+                'id' => $t->id,
+                'name' => $t->name,
+            ]),
+            'memos' => $item->memos->map(fn($m) => [
+                'memo' => $m->memo,
+                'user' => [
+                    'id' => $m->user->id ?? null,
+                    'name' => $m->user->name ?? '不明',
+                ],
+            ]),
+            'fade_key' => uniqid('fade_'),
+        ];
+    });
 
-        // ✅ 通常HTML表示（Blade用）
-        $items = $query->paginate(12);
-        $totalQuantity = $items->sum('quantity');
+    return response()->json($items);
+}
 
-        return view('items.index', compact('items', 'totalQuantity'));
-    }
+
+    // ✅ 通常のページ表示
+    $items = $query->paginate(12);
+    $totalQuantity = $items->sum('quantity');
+
+    return view('items.index', compact('items', 'totalQuantity'));
+}
 
     /**
      * 在庫登録フォーム表示

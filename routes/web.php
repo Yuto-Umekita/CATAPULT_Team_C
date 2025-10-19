@@ -101,13 +101,14 @@ Route::middleware('auth')->group(function () {
     Route::put('/ingredients/{ingredient}', [IngredientController::class, 'update'])->name('ingredients.update');
     Route::delete('/ingredients/{ingredient}', [IngredientController::class, 'destroy'])->name('ingredients.destroy');
 
-    // --------------------------------------------------------------
     // 🏷 タグ関連
-    // --------------------------------------------------------------
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
     Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
-    Route::put('/tags/{tag}', [TagController::class, 'update'])->name('tags.update');
-    Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
+    Route::put('/tags/{id}', [TagController::class, 'update'])->name('tags.update');
+    Route::delete('/tags/{id}', [TagController::class, 'destroy'])->name('tags.destroy');
+
+});
+
 
     // アイテムごとのタグ操作
     Route::get('/items/{item}/tags', [ItemTagController::class, 'index'])->name('items.tags.index');
@@ -150,7 +151,7 @@ Route::middleware('auth')->group(function () {
     // 📌 ピン機能（Ajax対応）
     // --------------------------------------------------------------
     Route::post('/items/{item}/pin', [ItemController::class, 'togglePin'])->name('items.pin');
-});
+
 
 // ====================================================================
 // 🌟 管理者用ルート群
