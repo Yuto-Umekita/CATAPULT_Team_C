@@ -86,6 +86,14 @@ Route::middleware('auth')->group(function () {
         ->whereNumber('id')
         ->name('bookmarks.destroy');
 
+
+    Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/items/csv',        [InventoryCsvController::class, 'index'])->name('items.csv.index');
+    Route::post('/items/csv/export',[InventoryCsvController::class, 'export'])->name('items.csv.export');
+    Route::post('/items/csv/import',[InventoryCsvController::class, 'import'])->name('items.csv.import');
+    Route::get('/items/csv/template',[InventoryCsvController::class, 'template'])->name('items.csv.template');
+});
+
     // --------------------------------------------------------------
     // 📦 在庫（Item）・メモ（Memo）
     // --------------------------------------------------------------
