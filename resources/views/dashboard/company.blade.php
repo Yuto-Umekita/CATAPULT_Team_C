@@ -4,6 +4,39 @@
             🏢 企業用通知
         </h2>
     </x-slot>
+    
+
+    {{-- 🔔 通知エリア --}}
+    @if (!empty($notifications))
+      <div class="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-300 dark:border-indigo-600 rounded-2xl p-6 shadow-sm">
+        <h3 class="text-xl font-semibold text-indigo-700 dark:text-indigo-300 mb-3 flex items-center gap-2">
+          <i data-lucide="bell-ring" class="w-6 h-6"></i>
+          通知センター
+        </h3>
+
+        {{-- 🔹 あなたの設定 --}}
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+          あなたの在庫閾値設定：<span class="font-semibold text-indigo-600 dark:text-indigo-300">{{ $threshold }}</span> 個未満
+        </p>
+
+        <ul class="list-disc list-inside text-gray-800 dark:text-gray-200 space-y-1">
+          @foreach ($notifications as $note)
+            <li>{{ $note }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @else
+      {{-- 通知がない場合 --}}
+      <div class="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-2xl p-6 text-center text-gray-600 dark:text-gray-400">
+        現在通知はありません。
+        <p class="mt-2 text-sm">あなたの在庫閾値設定：<span class="font-semibold text-indigo-600 dark:text-indigo-300">{{ $threshold }}</span> 個未満</p>
+      </div>
+    @endif
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => lucide.createIcons());
+  </script>
+
 
     <div class="py-12 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 min-h-screen">
         <div class="max-w-6xl mx-auto px-6 space-y-12">

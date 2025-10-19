@@ -28,7 +28,6 @@
         <!-- 📦 メニューグリッド -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
-
           <!-- 🔔 通知 (モードによる切り替え) -->
           @if (session('mode') === 'home')
             <a href="{{ route('dashboard.home') }}" 
@@ -50,42 +49,42 @@
             </a>
           @endif
 
-          <!-- 在庫一覧 -->
+          <!-- 📦 在庫一覧 -->
           <a href="{{ route('items.index') }}" 
              class="bg-white rounded-3xl shadow-md p-8 hover:shadow-2xl transition-all duration-300 flex flex-col gap-3">
             <h3 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">📦 在庫一覧</h3>
             <p class="text-base text-gray-500">登録されている在庫を確認・編集できます。</p>
           </a>
 
-          <!-- 在庫追加 -->
+          <!-- ➕ 在庫追加 -->
           <a href="{{ route('items.create') }}" 
              class="bg-white rounded-3xl shadow-md p-8 hover:shadow-2xl transition-all duration-300 flex flex-col gap-3">
             <h3 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">➕ 在庫追加</h3>
             <p class="text-base text-gray-500">在庫を新規登録できます。</p>
           </a>
 
-          <!-- 購入リスト -->
+          <!-- 🛒 購入リスト -->
           <a href="{{ route('purchase_lists.index') }}" 
              class="bg-white rounded-3xl shadow-md p-8 hover:shadow-2xl transition-all duration-300 flex flex-col gap-3">
             <h3 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">🛒 購入リスト</h3>
             <p class="text-base text-gray-500">買う必要のあるアイテムを管理します。</p>
           </a>
 
-          <!-- 作れるレシピ -->
+          <!-- 🍳 作れるレシピ -->
           <a href="{{ route('recipes.index') }}" 
              class="bg-white rounded-3xl shadow-md p-8 hover:shadow-2xl transition-all duration-300 flex flex-col gap-3">
             <h3 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">🍳 作れるレシピ</h3>
             <p class="text-base text-gray-500">在庫から作れる料理を提案します。</p>
           </a>
 
-          <!-- ブックマーク -->
+          <!-- 🔖 ブックマーク -->
           <a href="{{ route('bookmarks.index') }}" 
              class="bg-white rounded-3xl shadow-md p-8 hover:shadow-2xl transition-all duration-300 flex flex-col gap-3">
             <h3 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">🔖 ブックマーク</h3>
             <p class="text-base text-gray-500">保存したレシピを一覧表示します。</p>
           </a>
 
-          <!-- 監査ログ -->
+          <!-- 📜 監査ログ -->
           <a href="{{ route('audit-logs.index') }}" 
              class="bg-white rounded-3xl shadow-md p-8 hover:shadow-2xl transition-all duration-300 flex flex-col gap-3">
             <h3 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">📜 監査ログ</h3>
@@ -99,8 +98,8 @@
             <p class="text-base text-gray-500">在庫データをCSVでインポート・エクスポートできます。</p>
           </a>
 
-
-      </div>
+        </div> <!-- ✅ grid 終了 -->
+      </div> <!-- ✅ max-w-6xl 終了 -->
     </main>
   </div>
 </x-app-layout>
