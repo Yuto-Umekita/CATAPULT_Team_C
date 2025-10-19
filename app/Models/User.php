@@ -24,6 +24,7 @@ class User extends Authenticatable
         'notify_recipe_updates',
         'notify_system',
         'low_stock_threshold',
+        'is_admin',
     ];
 
     protected $hidden = [

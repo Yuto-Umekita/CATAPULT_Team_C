@@ -33,12 +33,11 @@ use App\Http\Controllers\{
 // ====================================================================
 Route::get('/', fn() => view('welcome'));
 
-// ====================================================================
-// 🌟 ログイン後：モード選択へリダイレクト
-// ====================================================================
-Route::get('/dashboard', fn() => redirect('/mode-select'))
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+// 🌟 ログイン後：モード選択ページへリダイレクト
+Route::get('/dashboard', function () {
+    return redirect()->route('mode.select'); // ← ここでモード選択へリダイレクト
+})->middleware(['auth', 'verified'])->name('dashboard');
+
 
 // ====================================================================
 // 🌟 家庭・企業のモード選択ページ
@@ -114,13 +113,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/items/{item}/tags', [ItemTagController::class, 'index'])->name('items.tags.index');
     Route::post('/items/{item}/tags/toggle', [ItemTagController::class, 'toggle'])->name('items.tags.toggle');
 
-    // --------------------------------------------------------------
-    // 📊 在庫CSVインポート・エクスポート
-    // --------------------------------------------------------------
-    Route::get('/items/csv', [InventoryCsvController::class, 'index'])->name('items.csv.index');
-    Route::post('/items/csv/export', [InventoryCsvController::class, 'export'])->name('items.csv.export');
-    Route::post('/items/csv/import', [InventoryCsvController::class, 'import'])->name('items.csv.import');
-    Route::get('/items/csv/template', [InventoryCsvController::class, 'template'])->name('items.csv.template');
+// 📊 在庫CSVインポート・エクスポート（管理者専用）
+Route::middleware(['web', 'auth', 'admin'])->group(function () {
+    Route::get('/items/csv', [\App\Http\Controllers\InventoryCsvController::class, 'index'])->name('items.csv.index');
+    Route::post('/items/csv/export', [\App\Http\Controllers\InventoryCsvController::class, 'export'])->name('items.csv.export');
+    Route::post('/items/csv/import', [\App\Http\Controllers\InventoryCsvController::class, 'import'])->name('items.csv.import');
+    Route::get('/items/csv/template', [\App\Http\Controllers\InventoryCsvController::class, 'template'])->name('items.csv.template');
+});
+
+
+
+
 
     // --------------------------------------------------------------
     // 👤 プロフィール
@@ -138,10 +141,12 @@ Route::middleware('auth')->group(function () {
         ->whereNumber('purchaseList')
         ->name('purchase_lists.destroy');
 
-    // --------------------------------------------------------------
-    // 📜 監査ログ
-    // --------------------------------------------------------------
-    Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+
+    // 📜 監査ログ（管理者専用）
+    Route::get('/audit-logs', [AuditLogController::class, 'index'])
+        ->middleware(['auth', 'admin'])
+        ->name('audit-logs.index');
+
 
     // 旧URL互換
     Route::get('/purchase-lists/audit-logs', fn() => redirect()->route('audit-logs.index'))
@@ -156,22 +161,31 @@ Route::middleware('auth')->group(function () {
 // ====================================================================
 // 🌟 管理者用ルート群
 // ====================================================================
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
 
     // --------------------------------------------------------------
-    // 🔑 管理者ログイン
+    // 🧭 管理者ダッシュボード（管理者設定ページ）
     // --------------------------------------------------------------
-    Route::get('/login', [AdminController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AdminController::class, 'login'])->name('login.submit');
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard'); // ← あなたの管理者設定ページ
+    })->name('dashboard');
 
     // --------------------------------------------------------------
-    // 🧭 管理者専用ページ
+    // 👑 管理者権限付与・解除
     // --------------------------------------------------------------
-    Route::middleware('auth:admin')->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
-    });
+    Route::post('/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])
+        ->name('users.toggle-admin');
 });
+
+
+
+// 🌟 管理者設定ページ（全ユーザーアクセス可能）
+// URL: /admin/settings-dashboard
+Route::middleware(['auth'])->get('/admin/settings-dashboard', function () {
+    return view('admin.dashboard'); // ← resources/views/admin/dashboard.blade.php
+})->name('admin.settings.dashboard');
+
+
 
 // ====================================================================
 // 🌟 Laravel Breeze / Jetstream 認証ルート

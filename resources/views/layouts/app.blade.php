@@ -1,5 +1,18 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" x-bind:class="{ 'dark': darkMode }">
+<html 
+  lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+  x-data="{
+      darkMode: localStorage.getItem('theme') === 'dark',
+      toggleTheme() {
+          this.darkMode = !this.darkMode;
+          localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
+          document.documentElement.classList.toggle('dark', this.darkMode);
+      }
+  }"
+  x-init="document.documentElement.classList.toggle('dark', darkMode)"
+  x-bind:class="{ 'dark': darkMode }"
+>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -53,13 +66,20 @@
                 <!-- 右側：操作ボタン群 -->
                 <div class="flex items-center space-x-4">
                     
-                    <!-- 🌙 ダークモード切替 -->
-                    <button 
-                        @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)" 
-                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                        <i x-show="!darkMode" data-lucide="moon" class="w-5 h-5 text-gray-600 dark:text-gray-300"></i>
-                        <i x-show="darkMode" data-lucide="sun" class="w-5 h-5 text-yellow-400"></i>
-                    </button>
+                <!-- 🌙 ダークモード切替 -->
+                <button 
+                    @click="toggleTheme()" 
+                    class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                    title="テーマ切り替え"
+                >
+                    <template x-if="!darkMode">
+                        <i data-lucide="moon" class="w-5 h-5 text-gray-600"></i>
+                    </template>
+                    <template x-if="darkMode">
+                        <i data-lucide="sun" class="w-5 h-5 text-yellow-400"></i>
+                    </template>
+                </button>
+
 
                     <!-- 🏠 メニュー -->
                     <a href="{{ route('menu.index') }}" 

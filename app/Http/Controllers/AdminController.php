@@ -54,4 +54,20 @@ class AdminController extends Controller
 
         return redirect()->route('admin.login');
     }
+
+public function toggleAdmin(\App\Models\User $user)
+{
+    $user->is_admin = !$user->is_admin;
+    $user->save();
+
+    return redirect()->back()->with('success', 'ユーザー権限を更新しました。');
+}
+
+
+    public function settings()
+    {
+        return view('admin.settings');
+    }
+
+
 }
