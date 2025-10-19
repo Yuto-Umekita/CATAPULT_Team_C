@@ -13,7 +13,7 @@ class Tag extends Model
 
     public function items()
     {
-        return $this->belongsToMany(Item::class, 'item_tag')->withTimestamps();
+        return $this->belongsToMany(Item::class, 'item_tag', 'tag_id', 'item_id')->withTimestamps();
     }
-
 }
+

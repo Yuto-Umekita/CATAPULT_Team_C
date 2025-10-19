@@ -16,7 +16,7 @@ use App\Http\Controllers\{
     TagController,
     ItemTagController,
     InventoryCsvController,
-    SettingsController // ← 設定ページ用
+    SettingsController
 };
 
 /*
@@ -103,8 +103,8 @@ Route::middleware('auth')->group(function () {
     // 🏷 タグ関連
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
     Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
-    Route::put('/tags/{id}', [TagController::class, 'update'])->name('tags.update');
-    Route::delete('/tags/{id}', [TagController::class, 'destroy'])->name('tags.destroy');
+    Route::put('/tags/{tag}', [TagController::class, 'update'])->name('tags.update');
+    Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
 
 });
 
@@ -155,6 +155,7 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     // --------------------------------------------------------------
     // 📌 ピン機能（Ajax対応）
     // --------------------------------------------------------------
+   Route::get('/items', [ItemController::class, 'index'])->name('items.index');
     Route::post('/items/{item}/pin', [ItemController::class, 'togglePin'])->name('items.pin');
 
 

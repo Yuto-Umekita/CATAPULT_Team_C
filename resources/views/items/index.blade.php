@@ -237,7 +237,8 @@
 <div 
   x-show="contextMenu.show"
   x-cloak
-  @click.away="contextMenu.show = false"
+  @click.away.window="contextMenu.show = false"
+  @contextmenu.stop
   class="fixed z-50 bg-white/95 backdrop-blur-md border border-gray-200 shadow-2xl rounded-xl w-48 overflow-hidden transform transition-all duration-200"
   :style="`top: ${contextMenu.y}px; left: ${contextMenu.x}px;`"
   x-transition.origin-top-left
@@ -248,6 +249,7 @@
   x-transition:leave-start="opacity-100 scale-100"
   x-transition:leave-end="opacity-0 scale-95"
 >
+
   <ul class="divide-y divide-gray-100">
     {{-- ✏️ 編集ボタン --}}
     <li>
@@ -284,7 +286,46 @@
     </li>
   </ul>
 </div>
+
+
+    <!-- 🏷️ タグ作成モーダル -->
+<div x-show="createModal" x-cloak
+     class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+  <div class="bg-white rounded-2xl shadow-lg p-6 w-80">
+    <h3 class="text-lg font-semibold mb-3 text-gray-800">新しいタグを作成</h3>
+    <input type="text" x-model="newTagName"
+           placeholder="タグ名を入力"
+           class="border rounded-lg px-3 py-2 w-full mb-3 focus:ring focus:ring-indigo-200">
+    <p class="text-red-500 text-sm" x-text="error"></p>
+    <div class="flex justify-end gap-2 mt-4">
+      <button @click="createModal = false"
+              class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">キャンセル</button>
+      <button @click="createTag"
+              class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">作成</button>
+    </div>
   </div>
+</div>
+
+<!-- 🏷️ 商品タグ追加モーダル -->
+<div x-show="itemTagModal.show" x-cloak
+     class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+  <div class="bg-white rounded-2xl shadow-lg p-6 w-80">
+    <h3 class="text-lg font-semibold mb-3 text-gray-800">商品にタグを追加</h3>
+
+    <input type="text" x-model="itemTagModal.name"
+           placeholder="タグ名を入力"
+           class="border rounded-lg px-3 py-2 w-full mb-3 focus:ring focus:ring-indigo-200">
+
+    <p class="text-red-500 text-sm" x-text="itemTagModal.error"></p>
+
+    <div class="flex justify-end gap-2 mt-4">
+      <button @click="itemTagModal.show = false"
+              class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">キャンセル</button>
+      <button @click="addTagToItem"
+              class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">追加</button>
+    </div>
+  </div>
+</div>
 
 
 
@@ -311,9 +352,10 @@ function tagFilter() {
     // 🏁 初期化処理
     // -------------------------------
     async init() {
-      await this.fetchTags();
-      await this.fetchItems();
+      this.fetchTags();
+      this.fetchItems();
     },
+
 
     // -------------------------------
     // 🏷 タグ一覧取得
@@ -333,16 +375,23 @@ function tagFilter() {
     // -------------------------------
     async fetchItems() {
       try {
-        const res = await fetch(`{{ route('items.index') }}`, {
+        const params = window.location.search;
+        const url = `{{ route('items.index') }}${params ? params + '&' : '?'}t=${Date.now()}`;
+        const res = await fetch(url, {
           headers: { 'Accept': 'application/json' }
         });
         if (!res.ok) throw new Error('アイテム取得失敗');
         this.items = await res.json();
-        this.filteredItems = this.items.map(i => ({ ...i, fade_key: i.id }));
+
+        // ✅ ピン優先の並び替え
+        this.filteredItems = this.items
+          .map(i => ({ ...i, fade_key: i.id }))
+          .sort((a, b) => (b.pinned ?? 0) - (a.pinned ?? 0));
       } catch (e) {
         console.error(e);
       }
     },
+
 
     // -------------------------------
     // ➕ タグ作成（全体 or 商品別）
@@ -459,22 +508,30 @@ function tagFilter() {
     // -------------------------------
     // 📌 ピン機能
     // -------------------------------
-    async togglePin(item) {
-      try {
-        const res = await fetch(`/items/${item.id}/pin`, {
-          method: 'POST',
-          headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
-          },
-        });
-        const data = await res.json();
-        item.pinned = data.pinned;
-      } catch (e) {
-        alert('ピンの更新に失敗しました');
-        console.error(e);
-      }
-    },
+  async togglePin(item) {
+    try {
+      const res = await fetch(`/items/${item.id}/pin`, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Accept': 'application/json'
+        },
+      });
+      const data = await res.json();
+      item.pinned = data.pinned;
+
+      // ✅ フロント側で並び替え
+      this.filteredItems.sort((a, b) => {
+        if (a.pinned === b.pinned) return b.updated_at.localeCompare(a.updated_at);
+        return b.pinned - a.pinned;
+      });
+
+    } catch (e) {
+      alert('ピンの更新に失敗しました');
+      console.error(e);
+    }
+  },
+
 
     // -------------------------------
     // ⚙️ タグ作成モーダル
@@ -525,6 +582,7 @@ function tagFilter() {
         if (!res.ok || !data.success) throw new Error('追加に失敗しました');
 
         this.itemTagModal.show = false;
+        await this.fetchTags(); 
         await this.fetchItems();
       } catch (e) {
         this.itemTagModal.error = e.message;
@@ -552,8 +610,8 @@ function tagFilter() {
     },
   };
 
-  
 }
+
 
 
 </script>
