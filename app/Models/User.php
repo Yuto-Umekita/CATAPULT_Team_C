@@ -37,10 +37,26 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
-    // app/Models/User.php
+    // ========================================================
+    // 🟡 最初の登録ユーザーを自動的に管理者にする
+    // ========================================================
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            // まだユーザーが1人もいない場合（最初の登録者）
+            if (self::count() === 0) {
+                $user->is_admin = true; // 管理者権限を自動付与
+            }
+        });
+    }
+
+    // ========================================================
+    // 🧩 関連リレーション
+    // ========================================================
     public function pinnedIngredients()
     {
         return $this->belongsToMany(Ingredient::class, 'user_ingredient_pins')
@@ -49,7 +65,6 @@ class User extends Authenticatable
                     ->orderBy('user_ingredient_pins.pinned_order');
     }
 
-    // app/Models/Ingredient.php
     public function pinUsers()
     {
         return $this->belongsToMany(User::class, 'user_ingredient_pins')
@@ -71,6 +86,4 @@ class User extends Authenticatable
     {
         return $this->hasOne(Profile::class);
     }
-
-
 }
