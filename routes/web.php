@@ -16,7 +16,8 @@ use App\Http\Controllers\{
     TagController,
     ItemTagController,
     InventoryCsvController,
-    SettingsController
+    SettingsController,
+    CalendarEventController
 };
 
 /*
@@ -93,6 +94,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/items/csv/import',[InventoryCsvController::class, 'import'])->name('items.csv.import');
     Route::get('/items/csv/template',[InventoryCsvController::class, 'template'])->name('items.csv.template');
 });
+
+    // --------------------------------------------------------------
+    // 🗓️ 入出庫スケジュールカレンダー
+    // --------------------------------------------------------------
+    Route::get('/calendar', [CalendarEventController::class, 'index'])->name('calendar.index');
+    Route::get('/calendar/events', [CalendarEventController::class, 'fetch'])->name('calendar.fetch');
+    Route::post('/calendar/events', [CalendarEventController::class, 'store'])->name('calendar.store');
+    Route::put('/calendar/events/{event}', [CalendarEventController::class, 'update'])->name('calendar.update');
+    Route::delete('/calendar/events/{event}', [CalendarEventController::class, 'destroy'])->name('calendar.destroy');
+
+    // ✅ 入庫完了時に在庫数量を自動更新
+    Route::post('/calendar/events/{event}/complete', [CalendarEventController::class, 'complete'])->name('calendar.complete');
+
+
 
     // --------------------------------------------------------------
     // 📦 在庫（Item）・メモ（Memo）
@@ -186,6 +201,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         ->name('users.toggle-admin');
 });
 
+    //入庫・出庫
+    Route::get('/calendar/history', [CalendarEventController::class, 'history'])->name('calendar.history');
+    //選択した日の予定詳細
+    Route::get('/calendar/date', [CalendarEventController::class, 'getByDate'])->name('calendar.byDate');
 
 
 // 🌟 管理者設定ページ（全ユーザーアクセス可能）

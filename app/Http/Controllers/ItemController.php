@@ -11,12 +11,13 @@ class ItemController extends Controller
     public function index(Request $request)
     {
         $query = Item::with([
-        'user',
-        'tags', // ✅ タグを常に読み込む！
-        'memos' => function ($q) {
-            $q->latest()->with('user');
-        },
-    ]);
+            'user',
+            'tags', // ✅ タグを常に読み込む
+            'memos' => function ($q) {
+                $q->latest()->with('user');
+            },
+        ])
+        ->where('quantity', '>', 0); // ✅ 数量が1以上の在庫のみ表示
 
         // 🔍 商品名キーワード検索
         if ($request->filled('keyword')) {

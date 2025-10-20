@@ -63,6 +63,13 @@
             <p class="text-base text-gray-500">在庫を新規登録できます。</p>
           </a>
 
+          <!-- 📅 入出庫カレンダー（👈ここに追加） -->
+          <a href="{{ route('calendar.index') }}" 
+            class="bg-white rounded-3xl shadow-md p-8 hover:shadow-2xl border border-green-200 hover:border-green-400 transition-all duration-300 flex flex-col gap-3">
+            <h3 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">📅 入出庫カレンダー</h3>
+            <p class="text-base text-gray-500">入庫・出庫の予定をカレンダーで管理します。</p>
+          </a>
+
           <!-- 🛒 購入リスト -->
           <a href="{{ route('purchase_lists.index') }}" 
              class="bg-white rounded-3xl shadow-md p-8 hover:shadow-2xl transition-all duration-300 flex flex-col gap-3">

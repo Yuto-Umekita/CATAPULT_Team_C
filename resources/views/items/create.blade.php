@@ -24,8 +24,9 @@
             <div class="mb-4">
               <label for="item" class="block text-gray-800 text-sm font-bold mb-2">▼商品名</label>
               <input type="text" name="item" id="item"
-                     value="{{ old('item', $item ?? request('item')) }}"
-                     class="w-1/4 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                value="{{ old('item', session('prefill_item_name') ?? ($item ?? request('item'))) }}"
+                class="w-1/4 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+
               @error('item')
                 <span class="text-red-500 text-xs italic">{{ $message }}</span>
               @enderror
@@ -35,9 +36,9 @@
             <div class="mb-4">
               <label for="quantity" class="block text-gray-800 text-sm font-bold mb-2">▼個数</label>
               <input type="number" name="quantity" id="quantity"
-                     value="{{ old('quantity', $quantity ?? request('quantity', 1)) }}"
-                     min="1"
-                     class="w-1/4 shadow appearance-none border rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                value="{{ old('quantity', session('prefill_quantity')) }}"
+                class="w-24 border rounded-lg py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline">
+
             </div>
 
             <!-- 賞味期限 -->
