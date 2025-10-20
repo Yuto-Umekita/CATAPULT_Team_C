@@ -43,10 +43,11 @@ Route::get('/dashboard', function () {
 // ====================================================================
 // 🌟 家庭・企業のモード選択ページ
 // ====================================================================
-Route::middleware('auth')->group(function () {
+Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/mode-select', [ModeController::class, 'select'])->name('mode.select');
     Route::post('/mode-select', [ModeController::class, 'store'])->name('mode.store');
 });
+
 
 // ====================================================================
 // 🌟 一般ユーザー用ルート群

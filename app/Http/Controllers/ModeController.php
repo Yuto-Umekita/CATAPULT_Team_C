@@ -21,9 +21,10 @@ class ModeController extends Controller
     {
         $userType = $request->input('user_type');
 
-        // 🧠 モードをセッションに保存
+        // 🧠 home / company → household / enterprise に変換してセッション保存
         if (in_array($userType, ['home', 'company'])) {
-            session(['mode' => $userType]);
+            $mapped = $userType === 'home' ? 'household' : 'enterprise';
+            session(['mode' => $mapped]);
         }
 
         // 🏠 家庭モード

@@ -19,8 +19,18 @@ class ProfileController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        return view('profile.edit', compact('profile'));
+        // ✅ household / enterprise をセッションから取得
+        $currentMode = session('mode');
+
+        // セッションに何もないときは profile の設定を優先
+        if (!$currentMode) {
+            $currentMode = $profile->user_type ?? 'household';
+        }
+
+        return view('profile.edit', compact('profile', 'currentMode'));
     }
+
+
 
     public function update(Request $request)
     {

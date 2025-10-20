@@ -13,20 +13,39 @@
                     <div class="mb-4 text-green-600">{{ session('status') }}</div>
                 @endif
 
-                <form method="POST" action="{{ route('profile.update') }}" x-data="{ type: '{{ $profile->user_type }}' }">
+                <form method="POST" action="{{ route('profile.update') }}" 
+      x-data="{ type: '{{ $currentMode ?? $profile->user_type }}' }">
+
                     @csrf
+                    @method('PATCH')
 
                     {{-- 利用種別：家庭用 or 企業用 --}}
-                    <div class="mb-6">
-                        <x-input-label for="user_type" :value="__('利用種別')" />
-                        <select id="user_type" name="user_type"
-                                x-model="type"
-                                class="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <option value="household">家庭用</option>
-                            <option value="enterprise">企業用</option>
-                        </select>
-                        <x-input-error class="mt-2" :messages="$errors->get('user_type')" />
-                    </div>
+<div class="mb-6">
+    <x-input-label for="user_type" :value="__('利用種別')" />
+
+    {{-- モード固定用セレクト --}}
+    <select id="user_type" name="user_type"
+            x-model="type"
+            class="mt-1 block w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            @if(isset($currentMode)) disabled @endif>
+        <option value="household" 
+            @selected(($currentMode ?? old('user_type', $profile->user_type)) === 'household')>
+            家庭用
+        </option>
+        <option value="enterprise" 
+            @selected(($currentMode ?? old('user_type', $profile->user_type)) === 'enterprise')>
+            企業用
+        </option>
+    </select>
+
+    {{-- モード固定時も値を送信するための hidden --}}
+    @if(isset($currentMode))
+        <input type="hidden" name="user_type" value="{{ $currentMode }}">
+    @endif
+
+    <x-input-error class="mt-2" :messages="$errors->get('user_type')" />
+</div>
+
 
                     {{-- 家庭用フォーム --}}
                     <div x-show="type === 'household'" x-cloak>
