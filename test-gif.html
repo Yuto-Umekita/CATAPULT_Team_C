@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GIF Moving Test</title>
+  <style>
+    /* 🌿 背景を淡い緑の無地に */
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(to top right, #d4f8d4, #e8fff2);
+      overflow: hidden; /* はみ出した部分を隠す */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 💫 GIF画像をゆっくり左→右に動かすアニメーション */
+    @keyframes move-right {
+      0% {
+        transform: translateX(-40%);
+        opacity: 0.7;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(140%);
+        opacity: 0.7;
+      }
+    }
+
+    .moving-gif {
+      position: absolute;
+      bottom: 30%; /* 画面のやや下の位置 */
+      height: 200px;
+      animation: move-right 50s linear infinite; /* 50秒かけて右に行く */
+      mix-blend-mode: screen; /* 背景に溶け込む感じ */
+      pointer-events: none; /* クリックなどを無効に */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 💠 保存したGIFを指定 -->
+  <img src="images/your-bg.gif" alt="Moving GIF" class="moving-gif">
+
+</body>
+</html>

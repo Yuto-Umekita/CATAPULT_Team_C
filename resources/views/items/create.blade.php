@@ -1,6 +1,6 @@
 <x-app-layout> 
   <x-slot name="header">
-    <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-center">
+    <h2 class="font-semibold text-xl sm:text-2xl text-gray-800 dark:text-gray-100 leading-tight text-center">
       {{ __('在庫追加') }}
     </h2>
   </x-slot>

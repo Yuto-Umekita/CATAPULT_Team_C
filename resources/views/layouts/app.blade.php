@@ -72,11 +72,14 @@
                     class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                     title="テーマ切り替え"
                 >
+                    <!-- 🌙 ライトモード時 -->
                     <template x-if="!darkMode">
-                        <i data-lucide="moon" class="w-5 h-5 text-gray-600"></i>
+                        <i data-lucide="moon" class="w-5 h-5 text-gray-600 dark:text-yellow-300"></i>
                     </template>
+
+                    <!-- ☀️ ダークモード時 -->
                     <template x-if="darkMode">
-                        <i data-lucide="sun" class="w-5 h-5 text-yellow-400"></i>
+                        <i data-lucide="sun" class="w-5 h-5 text-yellow-400 dark:text-yellow-200"></i>
                     </template>
                 </button>
 
@@ -96,7 +99,7 @@
                     </a>
 
                     <!-- 👤 プロフィール -->
-                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 hover:opacity-80">
+                    <a href="{{ route('profile.view') }}" class="flex items-center gap-2 hover:opacity-80">
                         <i data-lucide="user-circle" class="w-6 h-6 text-gray-700 dark:text-gray-200"></i>
                         <span class="hidden sm:inline">プロフィール</span>
                     </a>

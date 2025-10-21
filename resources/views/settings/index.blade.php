@@ -1,6 +1,6 @@
 <x-app-layout>
   <x-slot name="header">
-    <h2 class="font-semibold text-3xl text-gray-800 dark:text-gray-100 leading-tight text-center">
+    <h2 class="text-xl sm:text-2xl font-semibold text-center text-gray-800 dark:text-gray-100 leading-tight">
       ⚙️ {{ __('設定') }}
     </h2>
   </x-slot>
@@ -8,18 +8,6 @@
   {{-- 🌙 Alpine.js 読み込み --}}
   <script src="https://unpkg.com/alpinejs" defer></script>
 
-  {{-- 🌗 ダークモード切り替え管理 --}}
-  <div 
-    x-data="{
-      darkMode: localStorage.getItem('theme') === 'dark',
-      toggle() {
-        this.darkMode = !this.darkMode;
-        localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
-        document.documentElement.classList.toggle('dark', this.darkMode);
-      }
-    }"
-    x-init="document.documentElement.classList.toggle('dark', darkMode)"
-  >
 
     <div class="max-w-5xl mx-auto py-10 px-6 space-y-10">
 
@@ -30,36 +18,14 @@
         </div>
       @endif
 
-      {{-- 🌙 テーマ設定 --}}
-      <div class="bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-8 transition-all duration-300">
-        <h3 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-2">
-          <i data-lucide="moon" class="w-6 h-6 text-indigo-500"></i>
-          テーマ設定
-        </h3>
-
-        <div class="flex items-center justify-between">
-          <p class="text-gray-600 dark:text-gray-300 text-lg">ダークモードを切り替えます。</p>
-
-          <button 
-            @click="toggle()" 
-            class="flex items-center gap-2 px-5 py-2.5 rounded-lg text-white font-medium transition-all duration-200"
-            :class="darkMode ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-700 hover:bg-gray-800'">
-            <template x-if="darkMode">
-              <span><i data-lucide='sun' class='inline w-5 h-5'></i> ライトモード</span>
-            </template>
-            <template x-if="!darkMode">
-              <span><i data-lucide='moon' class='inline w-5 h-5'></i> ダークモード</span>
-            </template>
-          </button>
-        </div>
-      </div>
 
       {{-- 🔔 通知設定 --}}
-      <div class="bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-8 transition-all duration-300">
-        <h3 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-2">
-          <i data-lucide="bell" class="w-6 h-6 text-indigo-500"></i>
-          通知設定
-        </h3>
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-6 sm:p-8 
+            scale-[0.95] sm:scale-100 transition-all duration-300">
+            <h3 class="text-xl sm:text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-2">
+              <i data-lucide="bell" class="w-6 h-6 text-indigo-500"></i>
+              通知設定
+            </h3>
 
         <form method="POST" action="{{ route('settings.update') }}" class="space-y-4">
           @csrf
@@ -99,22 +65,30 @@
       </div>
 
       {{-- 🧾 アカウント情報 --}}
-      <div class="bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-8 transition-all duration-300">
-        <h3 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-2">
-          <i data-lucide="user" class="w-6 h-6 text-indigo-500"></i>
-          アカウント情報
-        </h3>
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-6 sm:p-8 
+            scale-[0.95] sm:scale-100 transition-all duration-300">
+            <h3 class="text-xl sm:text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-2">
+              <i data-lucide="user" class="w-6 h-6 text-indigo-500"></i>
+            アカウント情報
+            </h3>
 
         <div class="flex flex-col sm:flex-row justify-between sm:items-center">
           <div>
             <p class="text-gray-700 dark:text-gray-200 text-lg font-semibold">{{ Auth::user()->name }}</p>
             <p class="text-gray-500 dark:text-gray-400">{{ Auth::user()->email }}</p>
           </div>
+          <div class="mt-4 sm:mt-0 flex justify-end sm:justify-start"> 
           <a href="{{ route('profile.edit') }}" 
-            class="mt-4 sm:mt-0 inline-flex items-center gap-2 bg-gray-700 dark:bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-indigo-700 transition">
-            <i data-lucide="edit-3" class="w-5 h-5"></i> プロフィールを編集
+            class="mt-4 sm:mt-0 inline-flex items-center gap-2 bg-gray-700 dark:bg-indigo-600 text-white 
+                  w-fit flex-none whitespace-nowrap
+                  px-3 sm:px-5 py-2 text-sm sm:text-base rounded-lg
+                    hover:bg-gray-800 dark:hover:bg-indigo-700 transition">
+            <i data-lucide="edit-3" class="w-5 h-5"></i>
+            プロフィールを編集
           </a>
+          </div>
         </div>
+
       </div>
 
     </div>

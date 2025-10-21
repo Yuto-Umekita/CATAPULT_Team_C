@@ -1,6 +1,6 @@
 <x-app-layout>
   <x-slot name="header">
-    <h2 class="font-semibold text-3xl text-gray-800 leading-tight text-center">
+    <h2 class="text-xl sm:text-2xl font-semibold text-center text-gray-800 dark:text-white leading-tight">
       🛒 購入予定品
     </h2>
   </x-slot>
@@ -25,21 +25,25 @@
          x-transition:leave="transition ease-in duration-400"
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 translate-y-2"
-         class="fixed top-6 right-6 z-50 bg-white border border-gray-200 shadow-lg rounded-lg px-6 py-3 text-gray-700 font-medium">
+         class="fixed top-6 right-6 z-50 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 
+                shadow-lg rounded-lg px-6 py-3 text-gray-700 dark:text-gray-100 font-medium">
       <span x-text="toastMessage"></span>
     </div>
 
     <!-- 🧾 登録フォーム -->
     <form method="POST" action="{{ route('purchase_lists.store') }}"
-          class="mb-8 bg-white shadow-md rounded-2xl p-6 border border-gray-100">
+          class="mb-8 bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
       @csrf
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         <input type="text" name="item" placeholder="商品名" required
-               class="border rounded-lg px-3 py-2 w-full text-sm focus:ring focus:ring-blue-200">
+               class="border dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100
+                      rounded-lg px-3 py-2 w-full text-sm focus:ring focus:ring-blue-300 focus:outline-none">
         <input type="number" name="quantity" placeholder="個数（任意）" min="1"
-               class="border rounded-lg px-3 py-2 w-full text-sm focus:ring focus:ring-blue-200">
+               class="border dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100
+                      rounded-lg px-3 py-2 w-full text-sm focus:ring focus:ring-blue-300 focus:outline-none">
         <input type="date" name="purchase_date"
-               class="border rounded-lg px-3 py-2 w-full text-sm focus:ring focus:ring-blue-200">
+               class="border dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100
+                      rounded-lg px-3 py-2 w-full text-sm focus:ring focus:ring-blue-300 focus:outline-none">
       </div>
       <div class="text-center">
         <button type="submit"
@@ -52,35 +56,41 @@
     </form>
 
     <!-- 📋 リスト一覧 -->
-    <div class="bg-white shadow-md rounded-2xl p-6 border border-gray-100">
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
       @if($lists->isEmpty())
-        <p class="text-center text-gray-700 text-lg font-medium">購入予定のものはありません。</p>
+        <p class="text-center text-gray-700 dark:text-gray-300 text-lg font-medium">
+          購入予定のものはありません。
+        </p>
       @else
         <div class="overflow-x-auto">
-          <table class="w-full text-center border-collapse">
+          <table class="w-full text-center border-collapse text-sm sm:text-base">
             <thead>
-              <tr class="bg-[#6B8FD9] text-white text-sm">
+              <tr class="bg-[#6B8FD9] dark:bg-[#527BCB] text-white">
                 <th class="py-3 rounded-tl-lg">商品名</th>
                 <th class="py-3">個数</th>
                 <th class="py-3">購入予定日</th>
                 <th class="py-3 rounded-tr-lg">操作</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
               @foreach($lists as $list)
-                <tr class="hover:bg-blue-50 transition-colors duration-200">
-                  <td class="py-3 font-semibold text-gray-800">{{ $list->item }}</td>
-                  <td class="py-3">{{ $list->quantity ?? '-' }}</td>
-                  <td class="py-3">{{ $list->purchase_date ? \Carbon\Carbon::parse($list->purchase_date)->format('Y/m/d') : '-' }}</td>
+                <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                  <td class="py-3 font-semibold text-gray-800 dark:text-gray-100 break-words px-2">
+                    {{ $list->item }}
+                  </td>
+                  <td class="py-3 text-gray-700 dark:text-gray-200">{{ $list->quantity ?? '-' }}</td>
+                  <td class="py-3 text-gray-700 dark:text-gray-200">
+                    {{ $list->purchase_date ? \Carbon\Carbon::parse($list->purchase_date)->format('Y/m/d') : '-' }}
+                  </td>
                   <td class="py-3">
-                    <div class="flex justify-center space-x-2">
+                    <div class="flex flex-wrap justify-center gap-2">
                       <!-- 在庫へ追加 -->
                       <a href="{{ route('items.create', [
                           'item' => $list->item,
                           'quantity' => $list->quantity,
                           'purchase_date' => $list->purchase_date
                       ]) }}"
-                      class="px-4 py-1.5 text-sm text-white font-semibold rounded-lg
+                      class="px-3 py-1.5 text-xs sm:text-sm text-white font-semibold rounded-lg
                              bg-[#FFB347] hover:bg-[#FF9A3C]
                              transition-all duration-300 transform hover:scale-[1.03]">
                          在庫へ追加
@@ -92,7 +102,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit"
-                                class="px-4 py-1.5 text-sm text-white font-semibold rounded-lg
+                                class="px-3 py-1.5 text-xs sm:text-sm text-white font-semibold rounded-lg
                                        bg-[#EE2E48] hover:bg-[#D22B3E]
                                        transition-all duration-300 transform hover:scale-[1.03]">
                            削除

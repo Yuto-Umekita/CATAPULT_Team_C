@@ -74,4 +74,13 @@ class ProfileController extends Controller
 
         return redirect()->route('profile.edit')->with('status', 'プロフィールを更新しました');
     }
+
+    public function show()
+    {
+        $user = auth()->user();
+        $profile = $user->profile; // Profileモデルをリレーションしている前提
+        return view('profile.show', compact('user', 'profile'));
+    }
+
+
 }
