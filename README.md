@@ -48,25 +48,27 @@
 
 ## 🧱 ディレクトリ構成
 
+```plaintext
 mochilog/
 ├── app/
-│ ├── Http/
-│ │ └── Controllers/ # 各機能のコントローラ（Item, Tag, Recipeなど）
-│ ├── Models/ # モデル定義（Item, Tag, RecipeBookmark等）
-│ └── Providers/
+│   ├── Http/
+│   │   └── Controllers/
+│   ├── Models/
+│   └── Providers/
 ├── database/
-│ ├── migrations/ # テーブル定義
-│ ├── seeders/ # 初期データ投入
-│ └── factories/
+│   ├── migrations/
+│   ├── seeders/
+│   └── factories/
 ├── resources/
-│ ├── views/ # Bladeテンプレート
-│ ├── css/ # Tailwindスタイル
-│ └── js/ # Alpine.js 等のフロント動作
+│   ├── views/
+│   ├── css/
+│   └── js/
 ├── routes/
-│ └── web.php # ルーティング定義
+│   └── web.php
 ├── docker-compose.yml
 ├── .env.example
 └── README.md
+
 
 
 ---
