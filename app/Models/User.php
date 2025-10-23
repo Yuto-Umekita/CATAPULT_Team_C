@@ -8,7 +8,6 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     protected $fillable = [
@@ -47,9 +46,8 @@ class User extends Authenticatable
     protected static function booted()
     {
         static::creating(function ($user) {
-            // まだユーザーが1人もいない場合（最初の登録者）
             if (self::count() === 0) {
-                $user->is_admin = true; // 管理者権限を自動付与
+                $user->is_admin = true;
             }
         });
     }
@@ -57,6 +55,26 @@ class User extends Authenticatable
     // ========================================================
     // 🧩 関連リレーション
     // ========================================================
+
+    // 📦 アイテム
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
+
+    // 📝 メモ
+    public function memos()
+    {
+        return $this->hasMany(Memo::class);
+    }
+
+    // 👤 プロフィール
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
+
+    // 📍 ピン留め食材
     public function pinnedIngredients()
     {
         return $this->belongsToMany(Ingredient::class, 'user_ingredient_pins')
@@ -65,6 +83,7 @@ class User extends Authenticatable
                     ->orderBy('user_ingredient_pins.pinned_order');
     }
 
+    // 🧑‍🤝‍🧑 他ユーザー（ピン共有など）
     public function pinUsers()
     {
         return $this->belongsToMany(User::class, 'user_ingredient_pins')
@@ -72,18 +91,12 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
-    public function items()
+    // 🏢 グループ（企業・チーム）
+    public function groups()
     {
-        return $this->hasMany(Item::class);
+        return $this->belongsToMany(Group::class, 'group_user')
+                    ->withPivot('role')
+                    ->withTimestamps();
     }
 
-    public function memos()
-    {
-        return $this->hasMany(Memo::class);
-    }
-
-    public function profile()
-    {
-        return $this->hasOne(Profile::class);
-    }
 }

@@ -81,11 +81,4 @@
         </section>
     </div>
 
-    {{-- 🧭 戻るボタン --}}
-    <div class="max-w-3xl mx-auto mt-10 mb-8 text-center">
-        <a href="{{ route('menu.index') }}"
-           class="inline-block text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm underline transition">
-            ← メニューに戻る
-        </a>
-    </div>
 </x-app-layout>

@@ -12,33 +12,43 @@ use App\Models\RecipeBookmark;
 class RecipeController extends Controller
 {
     /**
-     * 在庫から作れるレシピ一覧を表示
+     * 🍳 在庫から作れるレシピ一覧を表示（グループ単位）
      */
     public function index()
     {
+        // ✅ グループ選択チェック
+        $groupId = session('selected_group_id');
+        if (!$groupId) {
+            return redirect()->route('group.select')
+                ->with('info', '先にグループを選択してください。');
+        }
+
         // -------------------------------------
-        // 🧩 1. 在庫アイテムを取得
+        // 🧩 1. グループ内の在庫アイテムを取得
         // -------------------------------------
-        $items = Item::pluck('item')->filter()->toArray();
+        $items = Item::where('group_id', $groupId)
+            ->pluck('item')
+            ->filter()
+            ->toArray();
 
         if (empty($items)) {
             return view('recipes.index', [
                 'recipes' => [],
                 'bookmarkedRecipeIds' => [],
-                'message' => '在庫が登録されていません。',
+                'message' => 'このグループには在庫が登録されていません。',
             ]);
         }
 
-        // DeepL エンドポイント
+        // DeepL API設定
         $deeplUrl = env('DEEPL_API_URL', 'https://api-free.deepl.com/v2/translate');
         $deeplKey = env('DEEPL_API_KEY');
 
         // -------------------------------------
-        // 🌐 2. 在庫名を英語に翻訳（DeepL + キャッシュ）
+        // 🌐 2. 在庫名を英語に翻訳（DeepL + グループ別キャッシュ）
         // -------------------------------------
         $translatedIngredients = [];
         foreach ($items as $ingredient) {
-            $cacheKey = 'deepl_en_' . md5($ingredient);
+            $cacheKey = "deepl_en_{$groupId}_" . md5($ingredient);
             $translatedIngredients[] = Cache::remember($cacheKey, 86400, function () use ($ingredient, $deeplUrl, $deeplKey) {
                 try {
                     $res = Http::asForm()->post($deeplUrl, [
@@ -72,26 +82,34 @@ class RecipeController extends Controller
             if ($response->successful()) {
                 $recipes = $response->json();
             } else {
-                logger('Spoonacular API エラー', ['status' => $response->status(), 'body' => $response->body()]);
+                logger('Spoonacular API エラー', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
             }
         } catch (\Throwable $e) {
             logger('Spoonacular通信例外', ['msg' => $e->getMessage()]);
         }
 
         // -------------------------------------
-        // 🇯🇵 4. レシピ名と食材名を日本語に翻訳
+        // 🇯🇵 4. レシピ名と食材名を日本語に翻訳（キャッシュ付）
         // -------------------------------------
         foreach ($recipes as &$recipe) {
             // 🟩 タイトル翻訳
             if (isset($recipe['title'])) {
-                $recipe['translated_title'] = $this->translateToJapanese($recipe['title'], $deeplUrl, $deeplKey);
+                $recipe['translated_title'] = $this->translateToJapanese(
+                    $recipe['title'],
+                    $deeplUrl,
+                    $deeplKey,
+                    $groupId
+                );
             }
 
             // 🟦 使用食材翻訳
             if (!empty($recipe['usedIngredients'])) {
                 foreach ($recipe['usedIngredients'] as &$ing) {
                     if (isset($ing['name'])) {
-                        $ing['name'] = $this->translateToJapanese($ing['name'], $deeplUrl, $deeplKey);
+                        $ing['name'] = $this->translateToJapanese($ing['name'], $deeplUrl, $deeplKey, $groupId);
                     }
                 }
                 unset($ing);
@@ -101,7 +119,7 @@ class RecipeController extends Controller
             if (!empty($recipe['missedIngredients'])) {
                 foreach ($recipe['missedIngredients'] as &$ing) {
                     if (isset($ing['name'])) {
-                        $ing['name'] = $this->translateToJapanese($ing['name'], $deeplUrl, $deeplKey);
+                        $ing['name'] = $this->translateToJapanese($ing['name'], $deeplUrl, $deeplKey, $groupId);
                     }
                 }
                 unset($ing);
@@ -110,10 +128,13 @@ class RecipeController extends Controller
         unset($recipe);
 
         // -------------------------------------
-        // ⭐ 5. ブックマーク済みのレシピID
+        // ⭐ 5. ブックマーク済みレシピ（グループ単位）
         // -------------------------------------
         $bookmarkedRecipeIds = Auth::check()
-            ? RecipeBookmark::where('user_id', Auth::id())->pluck('recipe_id')->toArray()
+            ? RecipeBookmark::where('group_id', $groupId)
+                ->where('user_id', Auth::id())
+                ->pluck('recipe_id')
+                ->toArray()
             : [];
 
         // -------------------------------------
@@ -127,11 +148,12 @@ class RecipeController extends Controller
     }
 
     /**
-     * DeepLで日本語に翻訳（キャッシュ付き）
+     * DeepLで日本語に翻訳（キャッシュ付き・グループ別）
      */
-    private function translateToJapanese(string $text, string $url, string $key): string
+    private function translateToJapanese(string $text, string $url, string $key, string $groupId): string
     {
-        $cacheKey = 'deepl_ja_' . md5($text);
+        $cacheKey = "deepl_ja_{$groupId}_" . md5($text);
+
         return Cache::remember($cacheKey, 86400, function () use ($text, $url, $key) {
             try {
                 $res = Http::asForm()->post($url, [

@@ -1,6 +1,6 @@
 <x-app-layout>
   <x-slot name="header">
-    <h2 class="font-semibold text-2xl text-gray-800 leading-tight text-center">
+    <h2 class="text-xl sm:text-2xl font-semibold text-center text-gray-800 dark:text-white leading-tight">
       {{ __('在庫編集') }}
     </h2>
   </x-slot>

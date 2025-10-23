@@ -11,14 +11,20 @@ use Carbon\Carbon;
 class CalendarEventController extends Controller
 {
     /**
-     * カレンダービュー
+     * 📅 カレンダー画面表示
      */
     public function index()
     {
+        $groupId = session('selected_group_id');
+        if (!$groupId) {
+            return redirect()->route('group.select')->with('info', '先にグループを選択してください。');
+        }
+
         $today = Carbon::today();
+
         $todayEvents = CalendarEvent::with('item')
+            ->where('group_id', $groupId)
             ->whereDate('date', $today)
-            ->where('user_id', Auth::id())
             ->orderBy('date')
             ->get();
 
@@ -26,16 +32,20 @@ class CalendarEventController extends Controller
     }
 
     /**
-     * JSONでイベント一覧取得
+     * 🧾 JSONでイベント一覧取得
      */
     public function fetch()
     {
+        $groupId = session('selected_group_id');
+        if (!$groupId) {
+            return response()->json(['error' => 'グループ未選択です。'], 403);
+        }
+
         $events = CalendarEvent::with('item')
-            ->where('user_id', Auth::id())
+            ->where('group_id', $groupId)
             ->get()
             ->map(fn($e) => [
                 'id' => $e->id,
-                // ✅ item_name も考慮してタイトルを生成
                 'title' => "{$e->type}：" . ($e->item->item ?? $e->item_name ?? '未指定') . "（{$e->quantity}）",
                 'start' => $e->date->toDateString(),
                 'color' => $e->type === '入庫' ? '#16a34a' : '#3b82f6',
@@ -49,17 +59,22 @@ class CalendarEventController extends Controller
     }
 
     /**
-    * 特定日の予定をJSONで取得
-    */
+     * 📆 特定日イベントをJSONで取得
+     */
     public function getByDate(Request $request)
     {
+        $groupId = session('selected_group_id');
+        if (!$groupId) {
+            return response()->json(['error' => 'グループ未選択です。'], 403);
+        }
+
         $date = $request->input('date');
         if (!$date) {
             return response()->json(['error' => '日付が指定されていません'], 400);
         }
 
         $events = CalendarEvent::with('item')
-            ->where('user_id', Auth::id())
+            ->where('group_id', $groupId)
             ->whereDate('date', $date)
             ->orderBy('date')
             ->get()
@@ -75,74 +90,89 @@ class CalendarEventController extends Controller
         return response()->json($events);
     }
 
-
-
-
     /**
-     * 新規登録
+     * 🆕 イベント登録
      */
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'type' => 'required|in:入庫,出庫',
-        'date' => 'required|date',
-        'quantity' => 'nullable|integer|min:1',
-        'item_name' => 'nullable|string|max:255',
-        'item_id' => 'nullable|exists:items,id',
-        'notes' => 'nullable|string|max:255',
-    ]);
-
-    $validated['user_id'] = Auth::id();
-
-    // 出庫時に同名アイテムが複数ある場合は候補を返す
-    if ($validated['type'] === '出庫' && empty($validated['item_id']) && !empty($validated['item_name'])) {
-        $matchedItems = Item::where('item', $validated['item_name'])
-            ->where('quantity', '>', 0)
-            ->get();
-
-        if ($matchedItems->count() > 1) {
-            return response()->json([
-                'multiple' => true,
-                'options' => $matchedItems->map(fn($i) => [
-                    'id' => $i->id,
-                    'name' => $i->item,
-                    'quantity' => $i->quantity,
-                ])
-            ]);
-        } elseif ($matchedItems->count() === 1) {
-            $validated['item_id'] = $matchedItems->first()->id;
-        }
-    }
-
-    CalendarEvent::create($validated);
-    return response()->json(['success' => true]);
-}
-
-
-
-    /**
-     * ドラッグで日付変更
-     */
-    public function update(Request $request, CalendarEvent $event)
+    public function store(Request $request)
     {
-        $request->validate(['date' => 'required|date']);
-        $event->update(['date' => $request->date]);
+        $groupId = session('selected_group_id');
+        if (!$groupId) {
+            return response()->json(['error' => '先にグループを選択してください。'], 403);
+        }
+
+        $validated = $request->validate([
+            'type' => 'required|in:入庫,出庫',
+            'date' => 'required|date',
+            'quantity' => 'nullable|integer|min:1',
+            'item_name' => 'nullable|string|max:255',
+            'item_id' => 'nullable|exists:items,id',
+            'notes' => 'nullable|string|max:255',
+        ]);
+
+        $validated['user_id'] = Auth::id();
+        $validated['group_id'] = $groupId;
+
+        // 出庫時：同名アイテムが複数存在する場合は候補を返す
+        if ($validated['type'] === '出庫' && empty($validated['item_id']) && !empty($validated['item_name'])) {
+            $matchedItems = Item::where('item', $validated['item_name'])
+                ->where('group_id', $groupId)
+                ->where('quantity', '>', 0)
+                ->get();
+
+            if ($matchedItems->count() > 1) {
+                return response()->json([
+                    'multiple' => true,
+                    'options' => $matchedItems->map(fn($i) => [
+                        'id' => $i->id,
+                        'name' => $i->item,
+                        'quantity' => $i->quantity,
+                    ]),
+                ]);
+            } elseif ($matchedItems->count() === 1) {
+                $validated['item_id'] = $matchedItems->first()->id;
+            }
+        }
+
+        CalendarEvent::create($validated);
         return response()->json(['success' => true]);
     }
 
     /**
-     * 削除
+     * 🏷️ 日付変更（ドラッグ対応）
+     */
+    public function update(Request $request, CalendarEvent $event)
+    {
+        $this->authorizeGroupAccess($event);
+
+        $request->validate(['date' => 'required|date']);
+        $event->update(['date' => $request->date]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * 🗑️ イベント削除
      */
     public function destroy(CalendarEvent $event)
     {
+        $this->authorizeGroupAccess($event);
+
         $event->delete();
         return response()->json(['success' => true]);
     }
 
+    /**
+     * 📜 履歴一覧（完了済イベント）
+     */
     public function history()
     {
+        $groupId = session('selected_group_id');
+        if (!$groupId) {
+            return redirect()->route('group.select')->with('info', '先にグループを選択してください。');
+        }
+
         $completedEvents = CalendarEvent::with('item')
-            ->where('user_id', Auth::id())
+            ->where('group_id', $groupId)
             ->where('status', '完了')
             ->orderByDesc('date')
             ->get();
@@ -150,16 +180,17 @@ public function store(Request $request)
         return view('calendar.history', compact('completedEvents'));
     }
 
+    /**
+     * ✅ イベント完了処理
+     */
     public function complete(CalendarEvent $event)
     {
-        // 予定を完了に更新
+        $this->authorizeGroupAccess($event);
+
         $event->update(['status' => '完了']);
 
-        // ---------------------------------
-        // 入庫処理：在庫追加ページに遷移
-        // ---------------------------------
+        // 入庫処理
         if ($event->type === '入庫') {
-            // 入庫の場合 → 在庫登録ページに遷移（初期値を渡す）
             return redirect()->route('items.create')->with([
                 'prefill_item_name' => $event->item_name ?? ($event->item->item ?? ''),
                 'prefill_quantity' => $event->quantity,
@@ -167,11 +198,12 @@ public function store(Request $request)
             ]);
         }
 
-        // ---------------------------------
-        // 出庫処理：該当在庫を減らす
-        // ---------------------------------
+        // 出庫処理
         if ($event->type === '出庫' && $event->item_id && $event->quantity) {
-            $item = Item::find($event->item_id);
+            $item = Item::where('id', $event->item_id)
+                ->where('group_id', $event->group_id)
+                ->first();
+
             if ($item) {
                 $newQuantity = max(0, $item->quantity - $event->quantity);
                 $item->update(['quantity' => $newQuantity]);
@@ -181,4 +213,14 @@ public function store(Request $request)
         return back()->with('success', '予定を完了しました。');
     }
 
+    /**
+     * 🛡️ グループ権限チェック
+     */
+    private function authorizeGroupAccess(CalendarEvent $event)
+    {
+        $currentGroupId = session('selected_group_id');
+        if ($event->group_id !== $currentGroupId) {
+            abort(403, 'このイベントを操作する権限がありません。');
+        }
     }
+}

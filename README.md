@@ -49,7 +49,7 @@
 ## 🧱 ディレクトリ構成
 
 ```plaintext
-mochilog/
+MochiLog/
 ├── app/
 │   ├── Http/
 │   │   └── Controllers/

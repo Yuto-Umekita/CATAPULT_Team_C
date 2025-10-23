@@ -12,7 +12,7 @@ class Memo extends Model
     use HasFactory;
 
     
-    protected $fillable = ['memo', 'item_id', 'user_id'];
+    protected $fillable = ['memo', 'item_id', 'user_id', 'group_id',];
 
     public function item()
     {

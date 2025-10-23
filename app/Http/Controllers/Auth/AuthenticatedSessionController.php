@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session; // ✅ ← これを追加！
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -38,8 +39,11 @@ class AuthenticatedSessionController extends Controller
     {
         Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
+        // 🔧 管理者認証情報をセッションから削除
+        Session::forget('admin_verified');
 
+        // 🧹 セッションを無効化
+        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/');

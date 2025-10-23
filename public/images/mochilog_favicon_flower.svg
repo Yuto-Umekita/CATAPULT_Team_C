@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1024" height="1024">
+  <defs>
+    <!-- Soft blue to pink gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A7D8F5"/>
+      <stop offset="100%" stop-color="#F7B6C8"/>
+    </linearGradient>
+
+    <!-- Flower mask made from 6 overlapping circles (transparent background outside petals) -->
+    <mask id="flowerMask">
+      <rect x="0" y="0" width="512" height="512" fill="black"/>
+      <!-- Six petals around the center -->
+      <circle cx="256" cy="96"  r="150" fill="white"/>
+      <circle cx="256" cy="416" r="150" fill="white"/>
+      <circle cx="96"  cy="256" r="150" fill="white"/>
+      <circle cx="416" cy="256" r="150" fill="white"/>
+      <circle cx="140" cy="140" r="150" fill="white"/>
+      <circle cx="372" cy="372" r="150" fill="white"/>
+    </mask>
+
+    <!-- Slight drop shadow for inner white icon -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Gradient-filled flower shape on a transparent canvas -->
+  <g mask="url(#flowerMask)">
+    <rect x="0" y="0" width="512" height="512" fill="url(#bgGrad)"/>
+  </g>
+
+  <!-- Inventory box icon (white) -->
+  <g fill="#FFFFFF" filter="url(#softShadow)">
+    <!-- Main box -->
+    <rect x="140" y="190" width="200" height="150" rx="16"/>
+    <!-- Shelf grid inside -->
+    <rect x="170" y="220" width="80" height="65" rx="10" fill-opacity="0.95"/>
+    <rect x="265" y="220" width="45" height="28" rx="8" fill-opacity="0.95"/>
+    <rect x="265" y="257" width="45" height="28" rx="8" fill-opacity="0.95"/>
+    <rect x="180" y="230" width="25" height="25" rx="6" fill-opacity="1"/>
+    <rect x="215" y="230" width="25" height="25" rx="6" fill-opacity="1"/>
+    <rect x="180" y="262" width="60" height="12" rx="6" fill-opacity="1"/>
+    <!-- Box lid -->
+    <path d="M140 190 h120 c8 0 16 6 18 14 l6 26 h-144z"/>
+    <!-- Check circle -->
+    <circle cx="360" cy="210" r="40"/>
+    <!-- Check mark (cutout) -->
+    <path d="M342 210 l12 12 24-24" stroke="#A7D8F5" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Rounded text (optional for larger sizes). For very small favicons you can remove this group. -->
+  <g transform="translate(0, 0)">
+    <text x="256" y="435" text-anchor="middle"
+          font-size="64"
+          fill="#FFFFFF"
+          font-weight="700"
+          font-family="Arial Rounded MT Bold, Hiragino Maru Gothic ProN, 'Noto Sans JP', 'Rounded Mplus 1c', 'Yu Gothic', sans-serif">
+      もちログ
+    </text>
+  </g>
+</svg>

@@ -3,58 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 use App\Models\Profile;
-
 
 class ProfileController extends Controller
 {
+    /**
+     * ✏️ プロフィール編集画面
+     */
     public function edit(Request $request)
     {
-        $profile = $request->user()->profile()->firstOrCreate([
-            'user_id' => $request->user()->id,
+        $user = $request->user();
+
+        // ✅ プロフィールを取得 or 作成
+        $profile = $user->profile()->firstOrCreate([
+            'user_id' => $user->id,
         ]);
 
-        // ✅ household / enterprise をセッションから取得
-        $currentMode = session('mode');
+        // ✅ 現在のモード（セッション or プロフィール or デフォルト）
+        $currentMode = session('mode') ?? $profile->user_type ?? 'household';
 
-        // セッションに何もないときは profile の設定を優先
-        if (!$currentMode) {
-            $currentMode = $profile->user_type ?? 'household';
+        // ✅ 現在のグループ（セッションから取得）
+        $currentGroupId = session('selected_group_id');
+        $currentGroup = null;
+
+        if ($currentGroupId) {
+            $currentGroup = \App\Models\Group::find($currentGroupId);
         }
 
-        return view('profile.edit', compact('profile', 'currentMode'));
+        return view('profile.edit', compact('profile', 'currentMode', 'currentGroup'));
     }
 
-
-
+    /**
+     * 💾 プロフィール更新処理
+     */
     public function update(Request $request)
     {
-        $profile = $request->user()->profile()->firstOrCreate([
-            'user_id' => $request->user()->id,
+        $user = $request->user();
+        $profile = $user->profile()->firstOrCreate([
+            'user_id' => $user->id,
         ]);
 
-        // 共通＋条件付きバリデーション
+        // ✅ household / enterprise モードに応じたバリデーション
         $rules = [
-            'user_type' => ['required','in:household,enterprise'],
-            // household のとき必須
-            'gender'     => ['nullable','in:男性,女性,その他','required_if:user_type,household'],
-            'age'        => ['nullable','integer','min:0','max:150','required_if:user_type,household'],
-            'occupation' => ['nullable','string','max:255','required_if:user_type,household'],
-            // enterprise のとき必須
-            'contact_email' => ['nullable','email','max:255','required_if:user_type,enterprise'],
-            'phone'         => ['nullable','string','max:50','required_if:user_type,enterprise'],
-            'company_name'  => ['nullable','string','max:255','required_if:user_type,enterprise'],
-            'position'      => ['nullable','string','max:255','required_if:user_type,enterprise'],
+            'user_type' => ['required', 'in:household,enterprise'],
+
+            // 家庭用プロフィール項目
+            'gender'     => ['nullable', 'in:男性,女性,その他', 'required_if:user_type,household'],
+            'age'        => ['nullable', 'integer', 'min:0', 'max:150', 'required_if:user_type,household'],
+            'occupation' => ['nullable', 'string', 'max:255', 'required_if:user_type,household'],
+
+            // 企業用プロフィール項目
+            'contact_email' => ['nullable', 'email', 'max:255', 'required_if:user_type,enterprise'],
+            'phone'         => ['nullable', 'string', 'max:50', 'required_if:user_type,enterprise'],
+            'company_name'  => ['nullable', 'string', 'max:255', 'required_if:user_type,enterprise'],
+            'position'      => ['nullable', 'string', 'max:255', 'required_if:user_type,enterprise'],
         ];
 
         $validated = $request->validate($rules);
 
-        // household と enterprise で不要なフィールドはクリアしておくと安全
+        // ✅ household と enterprise で不要なフィールドをクリア
         if ($validated['user_type'] === 'household') {
             $validated = array_merge($validated, [
                 'contact_email' => null,
@@ -72,15 +82,27 @@ class ProfileController extends Controller
 
         $profile->update($validated);
 
-        return redirect()->route('profile.edit')->with('status', 'プロフィールを更新しました');
+        // ✅ 現在のモードをセッションに反映
+        session(['mode' => $validated['user_type']]);
+
+        return redirect()
+            ->route('profile.edit')
+            ->with('status', 'プロフィールを更新しました');
     }
 
+    /**
+     * 👤 プロフィール閲覧画面
+     */
     public function show()
     {
-        $user = auth()->user();
-        $profile = $user->profile; // Profileモデルをリレーションしている前提
-        return view('profile.show', compact('user', 'profile'));
+        $user = Auth::user();
+        $profile = $user->profile;
+
+        $currentGroupId = session('selected_group_id');
+        $currentGroup = $currentGroupId
+            ? \App\Models\Group::find($currentGroupId)
+            : null;
+
+        return view('profile.show', compact('user', 'profile', 'currentGroup'));
     }
-
-
 }

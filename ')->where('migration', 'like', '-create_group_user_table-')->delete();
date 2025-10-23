@@ -1,0 +1,155 @@
+[90m= [39m[34;4mIlluminate\Support\Collection[39;24m {#6147
+    [34mall[39m: [
+      {#6149
+        +"[1mid[22m": [35m1[39m,
+        +"[1mmigration[22m": "[32m0001_01_01_000000_create_users_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6151
+        +"[1mid[22m": [35m2[39m,
+        +"[1mmigration[22m": "[32m0001_01_01_000001_create_cache_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6153
+        +"[1mid[22m": [35m3[39m,
+        +"[1mmigration[22m": "[32m0001_01_01_000002_create_jobs_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6154
+        +"[1mid[22m": [35m4[39m,
+        +"[1mmigration[22m": "[32m2025_09_17_160352_create_items_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6155
+        +"[1mid[22m": [35m5[39m,
+        +"[1mmigration[22m": "[32m2025_09_17_174656_create_memos_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6156
+        +"[1mid[22m": [35m6[39m,
+        +"[1mmigration[22m": "[32m2025_10_04_152743_add_quantity_to_items_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6157
+        +"[1mid[22m": [35m7[39m,
+        +"[1mmigration[22m": "[32m2025_10_06_010111_create_purchase_lists_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6158
+        +"[1mid[22m": [35m8[39m,
+        +"[1mmigration[22m": "[32m2025_10_13_034652_create_profiles_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6159
+        +"[1mid[22m": [35m9[39m,
+        +"[1mmigration[22m": "[32m2025_10_13_234647_create_audit_logs_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6160
+        +"[1mid[22m": [35m10[39m,
+        +"[1mmigration[22m": "[32m2025_10_14_031852_create_admins_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6161
+        +"[1mid[22m": [35m11[39m,
+        +"[1mmigration[22m": "[32m2025_10_16_160024_create_tags_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6162
+        +"[1mid[22m": [35m12[39m,
+        +"[1mmigration[22m": "[32m2025_10_16_160756_create_item_tag_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6163
+        +"[1mid[22m": [35m13[39m,
+        +"[1mmigration[22m": "[32m2025_10_17_085214_create_recipe_bookmarks_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6164
+        +"[1mid[22m": [35m14[39m,
+        +"[1mmigration[22m": "[32m2025_10_17_221617_add_csv_columns_to_items_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6165
+        +"[1mid[22m": [35m15[39m,
+        +"[1mmigration[22m": "[32m2025_10_18_131210_create_ingredients_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6166
+        +"[1mid[22m": [35m16[39m,
+        +"[1mmigration[22m": "[32m2025_10_18_134220_add_pin_columns_to_ingredients_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6167
+        +"[1mid[22m": [35m17[39m,
+        +"[1mmigration[22m": "[32m2025_10_18_134529_create_user_ingredient_pins_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6168
+        +"[1mid[22m": [35m18[39m,
+        +"[1mmigration[22m": "[32m2025_10_18_141409_add_pinned_to_items_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6169
+        +"[1mid[22m": [35m19[39m,
+        +"[1mmigration[22m": "[32m2025_10_18_172451_add_notification_settings_to_users_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6170
+        +"[1mid[22m": [35m20[39m,
+        +"[1mmigration[22m": "[32m2025_10_18_175251_add_low_stock_threshold_to_users_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6171
+        +"[1mid[22m": [35m21[39m,
+        +"[1mmigration[22m": "[32m2025_10_20_092114_create_calendar_events_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6172
+        +"[1mid[22m": [35m22[39m,
+        +"[1mmigration[22m": "[32m2025_10_20_135515_add_is_admin_to_users_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6173
+        +"[1mid[22m": [35m23[39m,
+        +"[1mmigration[22m": "[32m2025_10_22_043124_create_admin_passwords_table[39m",
+        +"[1mbatch[22m": [35m1[39m,
+      },
+      {#6174
+        +"[1mid[22m": [35m24[39m,
+        +"[1mmigration[22m": "[32m2025_10_22_112714_create_groups_table[39m",
+        +"[1mbatch[22m": [35m2[39m,
+      },
+      {#6175
+        +"[1mid[22m": [35m25[39m,
+        +"[1mmigration[22m": "[32m2025_10_22_112727_create_group_user_table[39m",
+        +"[1mbatch[22m": [35m2[39m,
+      },
+      {#6176
+        +"[1mid[22m": [35m26[39m,
+        +"[1mmigration[22m": "[32m2025_10_22_114329_add_group_id_to_items_tags_ingredients_tables[39m",
+        +"[1mbatch[22m": [35m3[39m,
+      },
+      {#6177
+        +"[1mid[22m": [35m27[39m,
+        +"[1mmigration[22m": "[32m2025_10_22_132201_create_group_invitations_table[39m",
+        +"[1mbatch[22m": [35m4[39m,
+      },
+      {#6178
+        +"[1mid[22m": [35m28[39m,
+        +"[1mmigration[22m": "[32m2025_10_23_043411_add_group_id_to_memos_table[39m",
+        +"[1mbatch[22m": [35m4[39m,
+      },
+      {#6179
+        +"[1mid[22m": [35m29[39m,
+        +"[1mmigration[22m": "[32m2025_10_23_065211_add_group_id_to_recipe_bookmarks_table[39m",
+        +"[1mbatch[22m": [35m5[39m,
+      },
+      {#6180
+        +"[1mid[22m": [35m30[39m,
+        +"[1mmigration[22m": "[32m2025_10_23_071309_add_group_id_to_audit_logs_table[39m",
+        +"[1mbatch[22m": [35m6[39m,
+      },
+    ],
+  }
+

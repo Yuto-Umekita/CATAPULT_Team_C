@@ -1,168 +1,119 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>もちログ - ログイン</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>もちログ - ようこそ</title>
 
-  <!-- 🧁 やわらかいフォント -->
-  <link href="https://fonts.googleapis.com/css2?family=Yomogi&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url('favicon.png') }}" type="image/png">
+    @vite('resources/css/app.css')
 
-  <style>
-    /* 🌿 ページ全体（白背景＆リセット） */
-    * {
-      box-sizing: border-box;
-      padding: 0;
-      margin: 0;
-    }
+    <style>
+        /* 🌸 フェードイン効果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 1.3s ease-out forwards;
+        }
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      background-color: #ffffff; /* ← 白背景固定 */
-      overflow: hidden;
-      font-family: 'Yomogi', 'Segoe UI', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
+        /* 背景グラデーション */
+        body {
+            background: linear-gradient(to bottom right, #E0E7FF, #FFFFFF, #FFE4E6);
+            background-size: 200% 200%;
+            animation: gradientShift 10s ease-in-out infinite alternate;
+        }
+        @keyframes gradientShift {
+            from { background-position: left top; }
+            to { background-position: right bottom; }
+        }
 
-    /* 💫 GIF：左外→右外をゆっくり移動 */
-    @keyframes move-right {
-      0%   { transform: translateX(-150vw); }
-      100% { transform: translateX(150vw); }
-    }
+        /* ガラス風ボタン */
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(14px) saturate(180%);
+            -webkit-backdrop-filter: blur(14px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 20px rgba(173, 135, 255, 0.15);
+            transition: all 0.3s ease-in-out;
+        }
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.45);
+            box-shadow: 0 8px 24px rgba(255, 182, 193, 0.35);
+            transform: translateY(-2px);
+        }
 
-    .moving-gif {
-      position: absolute;
-      bottom: 52%; /* ← 少し上に配置 */
-      height: 360px;
-      animation: move-right 34s linear infinite; /* ← ゆっくり移動 */
-      opacity: 1;
-      pointer-events: none;
-      z-index: 1;
-      filter: brightness(1.05) contrast(1.1) saturate(1.1);
-    }
+        /* カード背景 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(173, 135, 255, 0.15);
+        }
 
-    /* 🌸 タイトル */
-    .title {
-      position: fixed;
-      top: 110px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 5rem;
-      font-weight: 900;
-      color: #3e6b4d;
-      text-shadow: 3px 3px 10px rgba(255,255,255,0.9);
-      letter-spacing: 0.05em;
-      z-index: 3;
-      text-align: center;
-    }
+        /* 🌸 タイトル文字（もちログ） */
+        .logo-wrapper {
+            position: absolute;
+            top: 10vh; /* 画面上から少し下に */
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
 
-    /* 🌱 左上のロゴ */
-    .logo {
-      position: fixed;
-      top: 20px;
-      left: 25px;
-      height: 50px;
-      z-index: 3;
-    }
-
-    /* 🔐 ボタン（中央配置） */
-    .button-container {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 25px;
-    }
-
-    .btn {
-      background: rgba(255, 255, 255, 0.8);
-      border: none;
-      border-radius: 30px;
-      padding: 16px 60px;
-      font-size: 1.4rem;
-      color: #2f6045;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-      backdrop-filter: blur(8px);
-      transition: all 0.3s ease;
-    }
-
-    .btn:hover {
-      background: rgba(240, 255, 240, 0.95);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-
-    /* 📱 スマホ最適化 */
-    @media (max-width: 768px) {
-      html, body {
-        background-color: #ffffff; /* ← グレー化防止 */
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-      }
-
-      .moving-gif {
-        height: 200px;
-        bottom: 58%;
-        animation-duration: 36s; /* ← 少しだけさらにゆっくり */
-      }
-
-      .title {
-        font-size: 3rem;
-        top: 80px;
-      }
-
-      .btn {
-        width: 200px;
-        font-size: 1.1rem;
-        padding: 12px 24px;
-      }
-
-      .button-container {
-        margin-top: 280px;
-        gap: 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .title {
-        font-size: 2.4rem;
-        top: 60px;
-      }
-
-      .moving-gif {
-        height: 160px;
-        bottom: 60%;
-      }
-
-      .button-container {
-        margin-top: 240px;
-      }
-    }
-  </style>
+        .logo-text {
+            font-family: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif;
+            font-size: 3.6rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow:
+                0 0 5px rgba(255, 255, 255, 0.9),
+                0 0 10px rgba(255, 192, 203, 0.45),
+                0 0 20px rgba(255, 192, 203, 0.25);
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.7); /* 白縁 */
+            letter-spacing: 0.06em;
+            animation: fadeIn 1.8s ease-out forwards;
+        }
+    </style>
 </head>
 
-<body>
-  <!-- 🌱 ロゴ -->
-  <img src="images/ielog-icon.svg" alt="IeLog ロゴ" class="logo">
+<body class="min-h-screen flex items-center justify-center relative overflow-hidden fade-in">
 
-  <!-- 💫 背景GIF（流れる） -->
-  <img src="images/your-bg.gif" alt="背景アニメーション" class="moving-gif">
+    {{-- 🌸 タイトル文字（完全中央配置） --}}
+    <div class="logo-wrapper">
+        <h1 class="logo-text">もちログ</h1>
+    </div>
 
-  <!-- 🌸 タイトル -->
-  <div class="title">もちログ</div>
+    {{-- 🌸 メインカード --}}
+    <div class="relative z-10 text-center glass-card shadow-2xl rounded-3xl px-10 py-12 max-w-md mx-auto">
+        <div class="mb-8">
+            <p class="text-gray-500 mt-2 text-sm">
+                アカウントにログインして始めましょう
+            </p>
+        </div>
 
-  <!-- 🔐 ログイン＆登録ボタン -->
-  <div class="button-container">
-    <button class="btn" onclick="location.href='{{ route('login') }}'">ログイン</button>
-    <button class="btn" onclick="location.href='{{ route('register') }}'">アカウント登録</button>
-  </div>
+        {{-- 💎 ボタン群 --}}
+        <div class="flex flex-col space-y-5 fade-in relative">
+            <a href="{{ route('login') }}"
+               class="glass-btn relative px-6 py-3 rounded-full text-indigo-600 font-semibold text-lg shadow-md hover:shadow-lg transition-all duration-300">
+                ログイン
+            </a>
+
+            <span class="text-gray-500 text-sm">または</span>
+
+            <a href="{{ route('register') }}"
+               class="glass-btn relative px-6 py-3 rounded-full text-indigo-600 font-semibold text-lg shadow-md hover:shadow-lg transition-all duration-300">
+                アカウント登録
+            </a>
+        </div>
+    </div>
+
+    {{-- 🌸 フッター --}}
+    <footer class="absolute bottom-4 w-full text-center text-sm text-gray-600 fade-in">
+        © {{ date('Y') }} もちログ.
+    </footer>
 </body>
 </html>

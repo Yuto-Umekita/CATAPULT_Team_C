@@ -11,6 +11,7 @@ class RecipeBookmark extends Model
 
     protected $fillable = [
         'user_id',
+        'group_id',
         'recipe_id',
         'title',
         'image_url',

@@ -4,20 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseList;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PurchaseListController extends Controller
 {
     /**
-     * 購入予定品一覧を表示
+     * 🛒 購入予定品一覧を表示（現在のグループ限定）
      */
     public function index()
     {
-        $lists = PurchaseList::orderBy('created_at', 'desc')->get();
+        $groupId = session('selected_group_id');
+
+        // ✅ グループ未選択時はリダイレクト
+        if (!$groupId) {
+            return redirect()->route('group.select')->with('info', '先にグループを選択してください。');
+        }
+
+        // ✅ 現在のグループのデータのみ取得
+        $lists = PurchaseList::where('group_id', $groupId)
+            ->orderByDesc('created_at')
+            ->get();
+
         return view('purchase_lists.index', compact('lists'));
     }
 
     /**
-     * 新しい購入予定品を登録
+     * 📝 新しい購入予定品を登録
      */
     public function store(Request $request)
     {
@@ -27,22 +39,39 @@ class PurchaseListController extends Controller
             'purchase_date' => 'nullable|date',
         ]);
 
-        PurchaseList::create($validated);
+        $groupId = session('selected_group_id');
 
-        // ✅ トースト通知を表示
+        if (!$groupId) {
+            return redirect()->route('group.select')->with('info', '先にグループを選択してください。');
+        }
+
+        // ✅ ログインユーザーとグループを紐付けて登録
+        PurchaseList::create([
+            'item' => $validated['item'],
+            'quantity' => $validated['quantity'] ?? null,
+            'purchase_date' => $validated['purchase_date'] ?? null,
+            'user_id' => Auth::id(),
+            'group_id' => $groupId,
+        ]);
+
         return redirect()
             ->route('purchase_lists.index')
             ->with('success', '購入リストに商品を追加しました！');
     }
 
     /**
-     * 購入予定品を削除
+     * 🗑️ 購入予定品を削除（グループ権限チェック付き）
      */
     public function destroy(PurchaseList $purchaseList)
     {
+        $currentGroupId = session('selected_group_id');
+
+        if ($purchaseList->group_id !== $currentGroupId) {
+            abort(403, 'この購入リストを削除する権限がありません。');
+        }
+
         $purchaseList->delete();
 
-        // ✅ 削除後にもトースト通知を表示
         return redirect()
             ->route('purchase_lists.index')
             ->with('success', '削除しました。');
