@@ -3,22 +3,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <x-slot name="header">
-        <div class="flex justify-between items-center flex-wrap gap-3">
-            {{-- 🌙 タイトル（ダークモード対応） --}}
-            <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-white leading-tight">
-                {{ __('作れる料理一覧') }}
+        {{-- ✅ タイトルを中央、ボタンを右端に配置 --}}
+        <div class="relative max-w-6xl mx-auto px-4">
+            {{-- 🌙 タイトル（中央寄せ） --}}
+            <h2 class="font-semibold text-xl sm:text-2xl text-gray-800 dark:text-gray-100 leading-tight text-center">
+                {{ __('レシピ一覧') }}
             </h2>
 
-            {{-- 🔖 ブックマーク一覧ページへのボタン --}}
+            {{-- 🔖 ブックマーク一覧ページへのボタン（右上配置） --}}
             <a href="{{ route('bookmarks.index') }}"
-               class="inline-flex items-center justify-center
+               class="absolute right-0 top-1/2 -translate-y-1/2
+                      inline-flex items-center justify-center
                       px-4 py-2 sm:px-5 bg-blue-500 text-white text-sm font-semibold rounded-lg shadow 
                       hover:bg-blue-600 transition
                       sm:w-auto w-40 text-center">
-               🔖 ブックマーク一覧を見る
+                🔖 ブックマーク一覧を見る
             </a>
         </div>
     </x-slot>
+
+
 
     <div class="py-8 max-w-6xl mx-auto px-4">
         {{-- メッセージがあれば表示 --}}
@@ -40,15 +44,17 @@
                                 @endphp
 
                                 @if($isBookmarked)
-                                    <form method="POST" action="{{ route('bookmarks.destroy', ['id' => $recipe['id']]) }}">
+                                    <form method="POST" action="{{ route('bookmarks.destroy', ['bookmark' => $bookmark->id]) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit"
-                                            class="text-yellow-400 hover:text-yellow-500 text-2xl transition transform hover:scale-125"
-                                            title="ブックマーク解除">
-                                            <i class="fas fa-bookmark"></i>
-                                        </button>
+                                            <button type="submit"
+                                                class="text-yellow-400 hover:text-red-500 text-2xl transition"
+                                                title="ブックマーク解除">
+                                                <i class="fas fa-bookmark"></i>
+                                            </button>
                                     </form>
+
+
                                 @else
                                     <form method="POST" action="{{ route('bookmarks.store') }}">
                                         @csrf

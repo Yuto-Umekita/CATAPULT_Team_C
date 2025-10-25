@@ -1,0 +1,45 @@
+[90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#6143
+    [34mall[39m: [
+      [34;4mApp\Models\Item[39;24m {#6135
+        [34mid[39m: [35m1[39m,
+        [34mitem[39m: "[32mヨーグルト[39m",
+        [34mgroup_id[39m: [35m1[39m,
+      },
+      [34;4mApp\Models\Item[39;24m {#6134
+        [34mid[39m: [35m2[39m,
+        [34mitem[39m: "[32m桃[39m",
+        [34mgroup_id[39m: [35m1[39m,
+      },
+      [34;4mApp\Models\Item[39;24m {#6133
+        [34mid[39m: [35m3[39m,
+        [34mitem[39m: "[32m牛乳[39m",
+        [34mgroup_id[39m: [35m7[39m,
+      },
+      [34;4mApp\Models\Item[39;24m {#6132
+        [34mid[39m: [35m4[39m,
+        [34mitem[39m: "[32mスライスチーズ[39m",
+        [34mgroup_id[39m: [35m7[39m,
+      },
+      [34;4mApp\Models\Item[39;24m {#6131
+        [34mid[39m: [35m5[39m,
+        [34mitem[39m: "[32mヨーグルト[39m",
+        [34mgroup_id[39m: [35m1[39m,
+      },
+      [34;4mApp\Models\Item[39;24m {#6130
+        [34mid[39m: [35m6[39m,
+        [34mitem[39m: "[32m卵[39m",
+        [34mgroup_id[39m: [35m1[39m,
+      },
+      [34;4mApp\Models\Item[39;24m {#6129
+        [34mid[39m: [35m7[39m,
+        [34mitem[39m: "[32mコーヒー[39m",
+        [34mgroup_id[39m: [35m8[39m,
+      },
+      [34;4mApp\Models\Item[39;24m {#6184
+        [34mid[39m: [35m8[39m,
+        [34mitem[39m: "[32mおれんじ[39m",
+        [34mgroup_id[39m: [35m8[39m,
+      },
+    ],
+  }
+

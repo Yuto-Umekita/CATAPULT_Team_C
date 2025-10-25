@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\{
     AuditLogController,
     ProfileController,
@@ -141,7 +142,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/items/{item}/tags', [ItemTagController::class, 'index'])->name('items.tags.index');
     Route::post('/items/{item}/tags/toggle', [ItemTagController::class, 'toggle'])->name('items.tags.toggle');
 
-    // 🛒 購入リスト
+    // 🛒 購入予定品
     Route::resource('purchase_lists', PurchaseListController::class)->only(['index', 'store', 'destroy']);
 
     // 👤 プロフィール
@@ -180,8 +181,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.access'])->gr
 // ====================================================================
 // 📜 監査ログ（管理者専用）
 // ====================================================================
-Route::middleware(['auth', 'admin.access'])->group(function () {
-    Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/audit-logs', function () {
+        $user = Auth::user();
+
+        // 一般ユーザーは403エラーを返す
+        if (!$user->is_admin) {
+            abort(403, 'このページにアクセスする権限がありません。');
+        }
+
+    // 管理者ならコントローラへ
+    return app(AuditLogController::class)->index(request());
+    })->name('audit_logs.index'); // ✅ ← 名前を正しく設定
 });
 
 // ====================================================================

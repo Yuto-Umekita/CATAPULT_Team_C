@@ -16,19 +16,13 @@ class SettingsController extends Controller
         $user = Auth::user();
 
         // ✅ グループ選択チェック
-        // $groupId = session('selected_group_id');
-        // if (!$groupId) {
-        //     return redirect()->route('group.select')
-        //         ->with('info', '先にグループを選択してください。');
-        // }
+        $groupId = session('selected_group_id');
+        if (!$groupId) {
+            return redirect()->route('group.select')
+                ->with('info', '先にグループを選択してください。');
+        }
 
-        // // ✅ 自分の所属グループ以外はアクセス禁止
-        // if ($user->group_id !== $groupId) {
-        //     abort(403, 'このグループの設定にアクセスする権限がありません。');
-        // }
-
-        //return view('settings.index', compact('user', 'groupId'));
-        return view('settings.index', compact('user'));
+        return view('settings.index', compact('user', 'groupId'));
     }
 
     /**
@@ -37,17 +31,8 @@ class SettingsController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-        // $groupId = session('selected_group_id');
 
-        // if (!$groupId) {
-        //     return redirect()->route('group.select')->with('info', '先にグループを選択してください。');
-        // }
-
-        // if ($user->group_id !== $groupId) {
-        //     abort(403, 'このグループの設定を変更する権限がありません。');
-        // }
-
-        // 入力検証
+        // ✅ 入力検証
         $validated = $request->validate([
             'low_stock_threshold' => 'required|integer|min:1|max:50',
         ]);
@@ -63,7 +48,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * 🔐 共通管理者パスワードをグループごとに更新
+     * 🔐 管理者パスワードをグループごとに更新
      * ※ admin.access ミドルウェアで保護
      */
     public function updateAdminPassword(Request $request)
@@ -82,15 +67,16 @@ class SettingsController extends Controller
                 ->with('info', '先にグループを選択してください。');
         }
 
-        // 入力検証
-        $request->validate([
+        // ✅ 入力検証
+        $validated = $request->validate([
             'admin_password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        // ✅ グループ単位でパスワードを保持
-        $adminPassword = AdminPassword::firstOrNew(['group_id' => $groupId]);
-        $adminPassword->password = $request->admin_password;
-        $adminPassword->save();
+        // ✅ グループ単位でパスワードを保存または更新
+        AdminPassword::updateOrCreate(
+            ['group_id' => $groupId],
+            ['password' => $validated['admin_password']]
+        );
 
         return redirect()->back()->with('success', 'このグループの管理者パスワードを更新しました。');
     }

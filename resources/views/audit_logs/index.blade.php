@@ -47,7 +47,7 @@
                   class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition">
             検索
           </button>
-          <a href="{{ route('audit-logs.index') }}"
+          <a href="{{ route('audit_logs.index') }}"
              class="ml-3 px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 rounded-lg transition">
             リセット
           </a>

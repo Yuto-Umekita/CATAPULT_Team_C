@@ -23,7 +23,7 @@ class AdminAccess
 
         // 🚫 どちらでもない場合 → ゲート画面へ
         return redirect()
-            ->route('admin.gate.show')
+            ->route('admin.password.gate.show')
             ->with('error', '共通パスワードを入力してください。');
     }
 }

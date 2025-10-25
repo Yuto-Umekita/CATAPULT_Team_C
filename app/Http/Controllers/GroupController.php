@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Models\Group;
+use App\Models\GroupMember;
 
 class GroupController extends Controller
 {
@@ -70,8 +71,14 @@ class GroupController extends Controller
             'mode'    => $currentMode,
         ]);
 
-        // ✅ 自分自身を group_user に自動登録
+        // ✅ 自分自身を group_user に自動登録（既存処理）
         $group->members()->attach(Auth::id(), ['role' => 'admin']);
+
+        // ✅ さらに group_members にも登録（新規追加）
+        \App\Models\GroupMember::create([
+            'group_id' => $group->id,
+            'user_id'  => Auth::id(),
+        ]);
 
         // ✅ 作成したグループを自動選択状態にする
         Session::put('selected_group_id', $group->id);

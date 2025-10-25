@@ -2,7 +2,7 @@
 <x-app-layout>
   {{-- 🌟 ヘッダー --}}
   <x-slot name="header">
-    <h2 class="font-semibold text-2xl sm:text-3xl text-center text-gray-800 dark:text-gray-100 leading-tight">
+    <h2 class="font-semibold text-xl sm:text-2xl text-gray-800 dark:text-gray-100 leading-tight text-center">
       🏠 家庭用通知
     </h2>
   </x-slot>

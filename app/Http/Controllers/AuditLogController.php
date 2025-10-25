@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Auth;
 class AuditLogController extends Controller
 {
     /**
-     * 📜 監査ログ一覧（管理者のみ）
+     * 📜 監査ログ一覧（管理者のみ・グループ対応）
      */
     public function index(Request $request)
     {
-        // ✅ 管理者でない場合は403
-        if (!Auth::user() || !Auth::user()->is_admin) {
+        // ✅ 管理者チェック
+        if (!Auth::check() || !Auth::user()->is_admin) {
             abort(403, '監査ログを閲覧する権限がありません。');
         }
 
@@ -29,24 +29,24 @@ class AuditLogController extends Controller
         $query = AuditLog::with(['user', 'target'])
             ->where('group_id', $groupId);
 
-        // 🔍 フィルタ：アクション種別
+        // 🔍 アクション種別フィルタ
         if ($request->filled('action')) {
             $query->where('action', $request->action);
         }
 
-        // 🔍 フィルタ：対象モデルタイプ
+        // 🔍 対象モデルタイプフィルタ
         if ($request->filled('target_type')) {
             $query->where('target_type', $request->target_type);
         }
 
-        // 🔍 フィルタ：ユーザー名
+        // 🔍 ユーザー名フィルタ
         if ($request->filled('user_name')) {
             $query->whereHas('user', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->user_name . '%');
             });
         }
 
-        // 🔍 フィルタ：日付範囲
+        // 🔍 日付範囲フィルタ
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
@@ -54,7 +54,7 @@ class AuditLogController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        // ⏰ 並び順・ページネーション
+        // ✅ 並び替え & ページネーション
         $logs = $query->orderByDesc('created_at')->paginate(15);
 
         return view('audit_logs.index', compact('logs'));

@@ -3,17 +3,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <x-slot name="header">
-        <div class="flex justify-between items-center flex-wrap gap-3">
-            <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-white leading-tight">
+            <h2 class="font-semibold text-xl sm:text-2xl text-gray-800 dark:text-gray-100 leading-tight text-center">
                 {{ __('ブックマークしたレシピ一覧') }}
             </h2>
-
-            {{-- ← 戻るボタン --}}
-            <a href="{{ route('recipes.index') }}"
-               class="inline-flex items-center px-4 py-2 bg-gray-500 text-white text-sm font-semibold rounded-lg shadow hover:bg-gray-600 transition">
-                ← 戻る
-            </a>
-        </div>
     </x-slot>
 
     <div class="py-8 max-w-6xl mx-auto px-4">
@@ -37,15 +29,17 @@
 
                         {{-- ★ ブックマーク解除ボタン（右下） --}}
                         <div class="absolute bottom-3 right-3">
-                            <form method="POST" action="{{ route('bookmarks.destroy', ['id' => $bookmark->recipe_id]) }}">
+                            <form method="POST" action="{{ route('bookmarks.destroy', ['bookmark' => $bookmark->id]) }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit"
-                                    class="text-yellow-400 hover:text-red-500 text-2xl transition transform hover:scale-125"
-                                    title="ブックマーク解除">
-                                    <i class="fas fa-bookmark"></i>
-                                </button>
+                                    <button type="submit"
+                                        class="text-yellow-400 hover:text-red-500 text-2xl transition"
+                                        title="ブックマーク解除">
+                                        <i class="fas fa-bookmark"></i>
+                                    </button>
                             </form>
+
+
                         </div>
 
                         {{-- 🇯🇵 タイトル（翻訳済み優先） --}}

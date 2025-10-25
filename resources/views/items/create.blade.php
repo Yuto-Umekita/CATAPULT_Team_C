@@ -10,10 +10,10 @@
       <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6 text-gray-900 dark:text-gray-100">
 
-          {{-- メッセージ（購入リストから遷移したときに表示） --}}
+          {{-- メッセージ（購入予定品ページから遷移したときに表示） --}}
           @if (session('from_purchase'))
             <div class="mb-4 p-3 bg-blue-100 text-blue-800 rounded">
-              購入リストから追加しています。内容を確認してください。
+              購入予定品リストから追加しています。内容を確認してください。
             </div>
           @endif
 

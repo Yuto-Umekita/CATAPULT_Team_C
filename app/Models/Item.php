@@ -18,6 +18,7 @@ class Item extends Model
         'quantity',
         'expiration_date',
         'user_id',
+        'group_id',
     ];
 
     /**

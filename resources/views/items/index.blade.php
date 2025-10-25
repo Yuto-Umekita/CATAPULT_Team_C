@@ -1,6 +1,6 @@
 <x-app-layout>
   <x-slot name="header">
-    <h2 class="font-semibold text-2xl sm:text-3xl text-gray-800 dark:text-gray-100 leading-tight text-center">
+    <h2 class="font-semibold text-xl sm:text-2xl text-gray-800 dark:text-gray-100 leading-tight text-center">
       {{ __('在庫一覧') }}
     </h2>
 
@@ -213,12 +213,12 @@
               <div class="flex flex-wrap gap-1 mb-2">
                 <template x-for="t in item.tags" :key="t.id">
                   <span class="px-2 py-1 text-xs rounded-full border cursor-pointer transition-all duration-300
-                      bg-gray-100 dark:bg-gray-700 
-                        text-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600"
-                        x-text="t.name">
-                  </span>
-
-                </template>
+                    bg-gray-100 dark:bg-gray-700 
+                      text-gray-700 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      x-text="t.name"
+                      @contextmenu.stop.prevent="openTagContextMenu($event, t, item.id)">
+                </span>
+              </template>
                 <button class="px-2 py-1 text-xs bg-indigo-500 text-white rounded-full hover:bg-indigo-600"
                         @click="openItemTagModal(item.id)">
                   ＋
@@ -240,17 +240,22 @@
                 登録者：<span x-text="item.user.name"></span>
               </p>
 
-              <div class="mt-4 border-t pt-3" x-show="item.memos.length > 0">
-                <p class="text-xs text-gray-500 font-semibold mb-1 flex items-center gap-1">
-                  💬 最新のコメント:
-                </p>
-                <div class="text-sm text-gray-700 bg-gray-50 p-2 rounded-lg">
-                  <p x-text="item.memos[0].memo.substring(0, 50) + (item.memos[0].memo.length > 50 ? '...' : '')"
-                     class="break-words"></p>
-                  <p class="text-xs text-gray-400 text-right mt-1" x-text="`- ${item.memos[0].user.name}`"></p>
-                </div>
-              </div>
-            </div>
+              <div class="mt-4 border-t pt-3" x-show="item.memos && item.memos.length > 0">
+  <template x-if="item.memos.length > 0">
+    <div>
+      <p class="text-xs text-gray-500 font-semibold mb-1 flex items-center gap-1">
+        💬 最新のコメント:
+      </p>
+      <div class="text-sm text-gray-700 bg-gray-50 p-2 rounded-lg">
+        <p x-text="item.memos[0]?.memo ? item.memos[0].memo.substring(0, 50) + (item.memos[0].memo.length > 50 ? '...' : '') : ''"
+           class="break-words"></p>
+        <p class="text-xs text-gray-400 text-right mt-1" 
+           x-text="item.memos[0]?.user?.name ? `- ${item.memos[0].user.name}` : ''"></p>
+      </div>
+    </div>
+  </template>
+</div>
+
 
             <a :href="`/items/${item.id}`" 
                class="block text-right text-[#4973B5] hover:text-[#2C5BA5] font-medium mt-4 self-end">
@@ -341,6 +346,27 @@
   </div>
 </div>
 
+<!-- 🏷️ タグ編集モーダル -->
+<div x-show="editTagModal.show" x-cloak
+     class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+  <div class="bg-white rounded-2xl shadow-lg p-6 w-80">
+    <h3 class="text-lg font-semibold mb-3 text-gray-800">タグ名を編集</h3>
+    <input type="text" x-model="editTagModal.name"
+       placeholder="新しいタグ名を入力"
+       class="border rounded-lg px-3 py-2 w-full mb-3 focus:ring focus:ring-indigo-200
+              dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400">
+    <p class="text-red-500 text-sm" x-text="editTagModal.error"></p>
+
+    <div class="flex justify-end gap-2 mt-4">
+      <button @click="editTagModal.show = false"
+              class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">キャンセル</button>
+      <button @click="saveTagEdit"
+              class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">更新</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- 🏷️ 商品タグ追加モーダル -->
 <div x-show="itemTagModal.show" x-cloak
      class="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
@@ -384,6 +410,7 @@ function tagFilter() {
     error: '',
     contextMenu: { show: false, x: 0, y: 0, target: null, itemId: null },
     itemTagModal: { show: false, itemId: null, name: '', error: '' },
+    editTagModal: { show: false, tagId: null, name: '', error: '' },
 
     // -------------------------------
     // 🏁 初期化処理
@@ -460,38 +487,52 @@ function tagFilter() {
       }
     },
 
+    
     // -------------------------------
-    // ✏️ タグ編集
+    // ✏️ タグ編集（モーダル表示）
     // -------------------------------
-    async openEditTag() {
+    openEditTag() {
       if (!this.contextMenu.target) return;
-      const newName = prompt("新しいタグ名を入力してください", this.contextMenu.target.name);
-      if (!newName || newName.trim() === this.contextMenu.target.name) {
-        this.contextMenu.show = false;
+      this.editTagModal = {
+        show: true,
+        tagId: this.contextMenu.target.id,
+        name: this.contextMenu.target.name,
+        error: ''
+      };
+      this.contextMenu.show = false;
+    },
+
+    // -------------------------------
+    // 💾 タグ編集を保存
+    // -------------------------------
+    async saveTagEdit() {
+      if (!this.editTagModal.name.trim()) {
+        this.editTagModal.error = 'タグ名を入力してください';
         return;
       }
 
       try {
-        const res = await fetch(`/tags/${this.contextMenu.target.id}`, {
+        const res = await fetch(`/tags/${this.editTagModal.tagId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
-          },
-          body: JSON.stringify({ name: newName.trim() })
+        },
+          body: JSON.stringify({ name: this.editTagModal.name.trim() })
         });
 
         const data = await res.json();
-        if (!res.ok || !data.success) throw new Error('タグの更新に失敗');
+        if (!data.success) throw new Error(data.error || '更新に失敗しました');
 
-        this.contextMenu.show = false;
+        this.editTagModal.show = false;
         await this.fetchTags();
         await this.fetchItems();
       } catch (e) {
-        console.error(e);
-        alert(e.message);
+        this.editTagModal.error = e.message;
       }
     },
+
+
 
     // -------------------------------
     // 🗑️ タグ削除
@@ -535,12 +576,18 @@ function tagFilter() {
         this.filteredItems = this.items.map(i => ({ ...i, fade_key: Math.random() }));
         return;
       }
-      const selected = this.selectedTags.map(Number);
-      const filtered = this.items.filter(item =>
-        item.tags.some(tag => selected.includes(Number(tag.id)))
-      );
-      this.filteredItems = filtered.map(i => ({ ...i, fade_key: Math.random() }));
+
+      // 選択されたタグの名前を取得
+      const selectedTagNames = this.tags
+        .filter(t => this.selectedTags.includes(t.id))
+        .map(t => t.name);
+
+      // 名前一致するタグを持つアイテムだけ表示
+      this.filteredItems = this.items.filter(item =>
+        item.tags.some(tag => selectedTagNames.includes(tag.name))
+      ).map(i => ({ ...i, fade_key: Math.random() }));
     },
+
 
     // -------------------------------
     // 📌 ピン機能
@@ -588,18 +635,21 @@ function tagFilter() {
       console.log("右クリックしたタグ:", this.contextMenu.target);
     },
 
+
     // -------------------------------
     // 🏷️ 商品タグ追加モーダル
     // -------------------------------
     openItemTagModal(id) {
       this.itemTagModal = { show: true, itemId: id, name: '', error: '' };
+      this.newTagName = '';
     },
+
 
     // -------------------------------
     // 🏷️ 商品タグ追加処理
     // -------------------------------
     async addTagToItem() {
-      const name = this.itemTagModal.name.trim();
+      const name = this.newTagName.trim(); // ← 修正！
       if (!name) {
         this.itemTagModal.error = 'タグ名を入力してください';
         return;
@@ -619,13 +669,14 @@ function tagFilter() {
         if (!res.ok || !data.success) throw new Error('追加に失敗しました');
 
         this.itemTagModal.show = false;
-        await this.fetchTags(); 
+        await this.fetchTags();
         await this.fetchItems();
       } catch (e) {
         this.itemTagModal.error = e.message;
         console.error(e);
       }
     },
+
 
     // -------------------------------
     // ⏰ 賞味期限関連

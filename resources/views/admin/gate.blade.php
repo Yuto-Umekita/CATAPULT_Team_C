@@ -39,24 +39,26 @@
               </div>
           @endif
 
-          {{-- 入力フォーム --}}
-          <form method="POST" action="{{ route('admin.gate.check') }}">
-              @csrf
-              <div class="mb-6 text-left">
-                  <label for="password" class="block text-gray-700 dark:text-gray-200 font-medium mb-2">
-                      共通管理者パスワード
-                  </label>
-                  <input type="password" name="password" id="password" required
-                      class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-indigo-400 focus:border-indigo-400">
-              </div>
+                {{-- 入力フォーム --}}
+                <form method="POST" action="{{ route('admin.password.gate.check') }}">
+                    @csrf
+                    <div class="mb-6 text-left">
+                        <label for="password" class="block text-gray-700 dark:text-gray-200 font-medium mb-2">
+                            共通管理者パスワード
+                        </label>
+                        <input type="password" name="password" id="password"
+                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                            required>
+                    </div>
 
-              {{-- ✅ ボタン右寄せ --}}
-              <div class="flex justify-end">
-                  <x-primary-button class="w-auto px-4 py-2 text-sm sm:text-base">
-                      確認
-                  </x-primary-button>
-              </div>
-          </form>
+                    <div class="flex justify-center">
+                        <button type="submit"
+                                class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            認証する
+                        </button>
+                    </div>
+                </form>
+
 
       </div>
   </div>

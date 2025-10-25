@@ -79,18 +79,21 @@ class RecipeBookmarkController extends Controller
     /**
      * 🗑️ ブックマーク削除（グループ単位）
      */
-    public function destroy($id)
+    public function destroy(RecipeBookmark $bookmark)
     {
         $groupId = session('selected_group_id');
         if (!$groupId) {
             return back()->with('error', '先にグループを選択してください。');
         }
 
-        RecipeBookmark::where('group_id', $groupId)
-            ->where('user_id', Auth::id())
-            ->where('recipe_id', $id)
-            ->delete();
+        // ✅ ログインユーザー＋グループ一致確認（安全）
+        if ($bookmark->group_id !== $groupId || $bookmark->user_id !== Auth::id()) {
+            return back()->with('error', 'このブックマークを削除する権限がありません。');
+        }
+
+        $bookmark->delete();
 
         return back()->with('message', 'ブックマークを削除しました。');
     }
+
 }

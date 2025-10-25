@@ -154,6 +154,51 @@ class ItemController extends Controller
     }
 
     /**
+    * 📝 アイテムを更新（グループ対応版）
+    */
+    public function update(Request $request, Item $item)
+    {
+        $validated = $request->validate([
+            'item' => 'required|string|max:255',
+            'quantity' => 'required|integer|min:0',
+            'expiration_year' => 'nullable|integer|min:2024|max:2100',
+            'expiration_month' => 'nullable|integer|min:1|max:12',
+            'expiration_day' => 'nullable|integer|min:1|max:31',
+        ]);
+
+        // ✅ グループ所属確認
+        $currentGroupId = session('selected_group_id');
+        if ($item->group_id !== $currentGroupId) {
+            abort(403, 'このアイテムを編集する権限がありません。');
+        }
+
+        // ✅ フィールド更新
+        $item->item = $validated['item'];
+        $item->quantity = $validated['quantity'];
+
+        // ✅ 賞味期限を組み立て（入力されている場合のみ）
+        if ($request->filled(['expiration_year', 'expiration_month', 'expiration_day'])) {
+            $item->expiration_date = sprintf(
+                '%04d-%02d-%02d',
+                $validated['expiration_year'],
+                $validated['expiration_month'],
+                $validated['expiration_day']
+            );
+        } else {
+            $item->expiration_date = null;
+        }
+
+        $item->save();
+
+        return redirect()
+            ->route('items.index')
+            ->with('success', '在庫情報を更新しました。');
+    }
+
+
+
+
+    /**
      * 🗑️ 在庫削除
      */
     public function destroy($id)
