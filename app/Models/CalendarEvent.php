@@ -11,6 +11,7 @@ class CalendarEvent extends Model
 
     protected $fillable = [
         'user_id',
+        'group_id',
         'item_id',
         'item_name',
         'type',

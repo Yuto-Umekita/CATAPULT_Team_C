@@ -35,28 +35,35 @@ class CalendarEventController extends Controller
      * 🧾 JSONでイベント一覧取得
      */
     public function fetch()
-    {
-        $groupId = session('selected_group_id');
-        if (!$groupId) {
-            return response()->json(['error' => 'グループ未選択です。'], 403);
-        }
+{
+    // 🧭 現在選択中のグループIDを取得
+    $groupId = session('selected_group_id');
 
-        $events = CalendarEvent::with('item')
-            ->where('group_id', $groupId)
-            ->get()
-            ->map(fn($e) => [
-                'id' => $e->id,
-                'title' => "{$e->type}：" . ($e->item->item ?? $e->item_name ?? '未指定') . "（{$e->quantity}）",
-                'start' => $e->date->toDateString(),
-                'color' => $e->type === '入庫' ? '#16a34a' : '#3b82f6',
-                'extendedProps' => [
-                    'status' => $e->status,
-                    'notes' => $e->notes,
-                ],
-            ]);
-
-        return response()->json($events);
+    // 🚨 グループ未選択時はエラー返却（セキュリティのため）
+    if (!$groupId) {
+        return response()->json(['error' => 'グループが選択されていません。'], 403);
     }
+
+    // ✅ グループ内のイベントのみ取得
+    $events = CalendarEvent::with('item')
+        ->where('group_id', $groupId)
+        ->orderBy('date', 'asc')
+        ->get()
+        ->map(fn($e) => [
+            'id' => $e->id,
+            'title' => "{$e->type}：" . ($e->item->item ?? $e->item_name ?? '未指定') . "（{$e->quantity}）",
+            'start' => $e->date instanceof \Carbon\Carbon ? $e->date->toDateString() : $e->date,
+            'color' => $e->type === '入庫' ? '#16a34a' : '#3b82f6',
+            'extendedProps' => [
+                'status' => $e->status,
+                'notes' => $e->notes,
+            ],
+        ]);
+
+    return response()->json($events);
+}
+
+
 
     /**
      * 📆 特定日イベントをJSONで取得
@@ -110,8 +117,8 @@ class CalendarEventController extends Controller
         ]);
 
         $validated['user_id'] = Auth::id();
-        $validated['group_id'] = $groupId;
-
+        $validated['group_id'] = session('selected_group_id');
+        
         // 出庫時：同名アイテムが複数存在する場合は候補を返す
         if ($validated['type'] === '出庫' && empty($validated['item_id']) && !empty($validated['item_name'])) {
             $matchedItems = Item::where('item', $validated['item_name'])

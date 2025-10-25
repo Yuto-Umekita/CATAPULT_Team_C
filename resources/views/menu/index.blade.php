@@ -67,21 +67,24 @@
 
           {{-- モード通知 --}}
           @if ($currentMode === 'household')
-            <a href="{{ route('dashboard.home') }}" class="{{ $card }}">
+            <a href="{{ route('home.dashboard') }}" class="{{ $card }}">
               <h3 class="{{ $title }} text-center">🏠 家庭向け通知</h3>
               <p class="hidden sm:block {{ $desc }}">家庭モード用のお知らせを確認できます。</p>
-            </a>
+              </a>
+
           @elseif ($currentMode === 'company')
-            <a href="{{ route('dashboard.company') }}" class="{{ $card }}">
+            <a href="{{ route('company.dashboard') }}" class="{{ $card }}">
               <h3 class="{{ $title }} text-center">🏢 企業向け通知</h3>
-              <p class="hidden sm:block {{ $desc }}">企業モード用のお知らせを確認できます。</p>
+                <p class="hidden sm:block {{ $desc }}">企業モード用のお知らせを確認できます。</p>
             </a>
+
           @else
             <a href="{{ route('mode.select') }}" class="{{ $card }}">
               <h3 class="{{ $title }} text-center">⚙️ モード未選択</h3>
               <p class="hidden sm:block {{ $desc }}">モードを選択してから通知を確認できます。</p>
             </a>
           @endif
+
 
           {{-- 在庫一覧 --}}
           <a href="{{ route('items.index') }}" class="{{ $card }}">

@@ -40,7 +40,7 @@
           @endif
 
           {{-- 入力フォーム --}}
-          <form method="POST" action="{{ route('admin.password.gate.check') }}">
+          <form method="POST" action="{{ route('admin.gate.check') }}">
               @csrf
               <div class="mb-6 text-left">
                   <label for="password" class="block text-gray-700 dark:text-gray-200 font-medium mb-2">

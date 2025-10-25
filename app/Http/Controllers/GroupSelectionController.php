@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Models\Group;
 
+
 class GroupSelectionController extends Controller
 {
     /**
@@ -51,24 +52,26 @@ class GroupSelectionController extends Controller
     /**
      * 💾 選択されたグループをセッションに保存
      */
-    public function set(Request $request)
-    {
-        $validated = $request->validate([
-            'group_id' => 'required|exists:groups,id',
-        ]);
+public function set(Request $request)
+{
+    $validated = $request->validate([
+        'group_id' => 'required|exists:groups,id',
+    ]);
 
-        $group = Group::find($validated['group_id']);
+    $group = Group::find($validated['group_id']);
 
-        // ✅ 選択したグループをセッションに保存
-        Session::put('selected_group_id', $group->id);
+    // ✅ 確実にセッションに保存
+    $request->session()->put('selected_group_id', $group->id);
 
-        // ✅ 遷移先をモード別に出し分けてもOK
-        $redirectRoute = $group->mode === 'household'
-            ? 'home.dashboard'
-            : 'company.dashboard';
 
-        return redirect()
-            ->route($redirectRoute)
-            ->with('success', "{$group->name}（" . ($group->mode === 'household' ? '家庭用' : '企業用') . "）を選択しました。");
-    }
+    // ✅ モードに応じてリダイレクト
+    $redirectRoute = $group->mode === 'household'
+        ? 'home.dashboard'
+        : 'company.dashboard';
+
+    return redirect()
+        ->route($redirectRoute)
+        ->with('success', "{$group->name}（" . ($group->mode === 'household' ? '家庭用' : '企業用') . "）を選択しました。");
+}
+
 }

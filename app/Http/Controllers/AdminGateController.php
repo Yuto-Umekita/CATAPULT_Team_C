@@ -13,10 +13,11 @@ class AdminGateController extends Controller
      */
     public function show()
     {
-        $defaultPassword = env('DEFAULT_ADMIN_PASSWORD', '0000');
+        // config/admin.php の値を読む。なければ '0000'
+        $defaultPassword = config('admin.default_password', '0000');
 
-        // ✅ モデルが自動でハッシュ化するため、ここでは Hash::make() は不要
-        if (!AdminPassword::exists()) {
+        // ✅ 初回のみ：DBに管理パスワードが無ければ作成する
+        if (AdminPassword::count() === 0) {
             AdminPassword::create(['password' => $defaultPassword]);
             session()->flash('first_time_info', "初回パスワード：{$defaultPassword}");
         }
@@ -36,14 +37,19 @@ class AdminGateController extends Controller
         $stored = AdminPassword::first();
 
         if ($stored && Hash::check($request->password, $stored->password)) {
-            // 💡 ミドルウェアと合わせる
-            session(['admin_authenticated' => true]);
+            // 💡 ユーザーごとにゲート通過フラグを持つ
+            session(['admin_authenticated_' . auth()->id() => true]);
 
-            // ✅ ここを追加することでセッションを即時保存（リダイレクト時に失われない）
-            session()->save();
+            // セッション固定攻撃対策でIDを再発行
+            session()->regenerate();
 
-            // ✅ route() ではなくURL指定に変更（admin.accessが有効なまま）
-            return redirect('/admin/dashboard')
+            // 任意: ログを残したいなら（監査用）
+            \Log::info('Admin gate passed', [
+                'user_id' => auth()->id(),
+                'time'    => now(),
+            ]);
+
+            return redirect()->route('admin.dashboard')
                 ->with('success', '管理者認証に成功しました。');
         }
 
